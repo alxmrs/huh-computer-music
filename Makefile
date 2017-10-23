@@ -36,6 +36,8 @@ dev_requirements: requirements
 lint:
 	flake8 --exclude=lib/,bin/,docs/conf.py .
 
+hooks:
+	cp .github/hooks/* .git/hooks/.
 
 ## Set up python interpreter environment
 create_environment:
