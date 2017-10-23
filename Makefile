@@ -33,8 +33,8 @@ dev_requirements: requirements
 	pip install -r dev_requirements.txt
 
 ## Lint using flake8
-##lint:
-##	flake8 --exclude=lib/,bin/,docs/conf.py .
+lint:
+	flake8 --exclude=lib/,bin/,docs/conf.py .
 
 
 ## Set up python interpreter environment
