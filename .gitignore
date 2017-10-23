@@ -3,4 +3,4 @@
 *.wav
 *.aiff
 .DS_Store
-Demos/.ipynb_checkpoints
+demos/.ipynb_checkpoints
