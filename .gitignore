@@ -1,0 +1,5 @@
+.idea/
+*.pyc
+*.wav
+*.aiff
+.DS_Store
