@@ -38,6 +38,7 @@ dev_requirements: requirements
 lint:
 	$(PYTHON_INTERPRETER) -m flake8 --exclude=lib/,bin/,docs/conf.py --ignore F401,H301,E203,E241 .
 
+# Copy client-side hooks over
 hooks:
 	cp .github/hooks/* .git/hooks/.
 
