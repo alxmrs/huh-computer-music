@@ -1,2 +1,1 @@
-
-from .timeseries import normalize, AM, sample_and_hold
+from hcm.ts.timeseries import normalize, AM, sample_and_hold
