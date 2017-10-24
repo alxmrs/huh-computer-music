@@ -1,2 +1,2 @@
-from .signal import time
-from .vco import VCO
+from hcm.signal.signal import time
+from hcm.signal.vco import VCO

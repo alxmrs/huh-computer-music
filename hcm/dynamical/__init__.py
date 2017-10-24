@@ -1,1 +1,1 @@
-from .lorenz import lorenz
+from hcm.dynamical.lorenz import lorenz
