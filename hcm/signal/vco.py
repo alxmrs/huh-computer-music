@@ -11,7 +11,7 @@ def VCO(t, f, osc):
     Argument 'osc' can be sine, square, or triangle.
     """
     N = len(t)
-    output = np.zeros(N)
+    output = np.zeros(N, dtype=np.float32)
     for n in range(0, N):
         output[n] = osc(t[n], f[n])
     return output

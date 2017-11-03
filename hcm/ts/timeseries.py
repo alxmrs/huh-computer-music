@@ -17,7 +17,7 @@ def sample_and_hold(signal, sample_rate, hold):
     """Samples"""
     inc = int(sample_rate / hold)
     samples = signal[0::inc]
-    new_signal = np.zeros([len(samples), inc])
+    new_signal = np.zeros([len(samples), inc], dtype=np.float32)
     for i in range(0, len(samples)):
         new_signal[i, :] = samples[i]
     return np.concatenate(new_signal)

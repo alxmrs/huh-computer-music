@@ -8,5 +8,5 @@ def time(t0, T, sample_rate):
     t[N] = t0 + N*dt = T
     dt = 1/sample_rate
     """
-    t = np.linspace(t0, t0 + T, num=T * sample_rate)
+    t = np.linspace(t0, t0 + T, num=T * sample_rate, dtype=np.float32)
     return t

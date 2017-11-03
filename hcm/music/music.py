@@ -41,7 +41,7 @@ def frequency_map(signal: np.ndarray, scale: np.ndarray) -> np.ndarray:
 
     bins = np.linspace(-1, 1, num=len(scale))
     inds = np.digitize(signal, bins)
-    f = np.array([scale[i - 1] for i in inds], dtype=np.float64)
+    f = np.array([scale[i - 1] for i in inds], dtype=np.float32)
 
     return f
 
