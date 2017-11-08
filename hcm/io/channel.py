@@ -6,4 +6,4 @@ def add_channels(signals):
 
 
 def append(*signals):
-    return np.array(np.hstack(signals))
+    return np.array(np.concatenate(signals, axis=0))
