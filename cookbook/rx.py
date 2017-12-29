@@ -14,6 +14,9 @@ from hcm.ts import sample_and_hold
 import hcm.signal
 
 import rx
+import typing
+import pathlib
+import json
 
 import numpy as np
 import sounddevice as sd
@@ -77,13 +80,21 @@ class WavFileOutput(rx.Observer):
         print('An error occured, couldn\'t output wavefile', error)
 
 
+def read_config_file(filepath: typing.Union[pathlib.Path, typing.AnyStr]) -> typing.Dict:
+        with open(filepath) as json_file:
+            return json.load(json_file)
+
+
 if __name__ == '__main__':
-    f0 = notes['Eb2']
-    key = keys['Mixolydian']
 
-    scale = scale_constructor(f0, key, 2)
+    config = read_config_file('cookbook/params.json')
 
-    hold = tempo_to_frequency(200, 'quarter')
+    f0 = notes[config['start_note']]
+    key = keys[config['key']]
+
+    scale = scale_constructor(f0, key, config['num_octaves'])
+
+    hold = tempo_to_frequency(config['tempo'], config['note_duration'])
 
     ts = rx.Observable.interval(1000) \
         .map(lambda i: hcm.signal.time(i, i + 1, SAMPLE_RATE)) \
