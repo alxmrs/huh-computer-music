@@ -85,6 +85,13 @@ def read_config_file(filepath: typing.Union[pathlib.Path, typing.AnyStr]) -> typ
             return json.load(json_file)
 
 
+def demo_control(ts, func, *, hold, scale):
+    return ts \
+        .map(func) \
+        .map(lambda s: sample_and_hold(s, SAMPLE_RATE, hold)) \
+        .map(lambda sp: frequency_map(sp, scale=scale))
+
+
 if __name__ == '__main__':
 
     config = read_config_file('cookbook/params.json')
@@ -99,15 +106,11 @@ if __name__ == '__main__':
     ts = rx.Observable.interval(1000) \
         .map(lambda i: hcm.signal.time(i, i + 1, SAMPLE_RATE)) \
 
-    sine_control = ts \
-        .map(lambda t: sine(t, f0)) \
-        .map(lambda s: sample_and_hold(s, SAMPLE_RATE, hold)) \
-        .map(lambda sp: frequency_map(sp, scale=scale))
+    sine_control = demo_control(ts, lambda t: sine(t, f0),
+                                hold=hold, scale=scale)
 
-    triangle_control = ts \
-        .map(lambda t: triangle(t, f0)) \
-        .map(lambda s: sample_and_hold(s, SAMPLE_RATE, hold)) \
-        .map(lambda sp: frequency_map(sp, scale=scale))
+    triangle_control = demo_control(ts, lambda t: triangle(t, f0),
+                                hold=hold, scale=scale)
 
     vco_sine = rx.Observable.zip(ts, sine_control,
                                  lambda t, c: hcm.signal.VCO(t, c, sine))
