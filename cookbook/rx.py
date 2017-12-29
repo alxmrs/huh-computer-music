@@ -85,7 +85,7 @@ def read_config_file(filepath: typing.Union[pathlib.Path, typing.AnyStr]) -> typ
             return json.load(json_file)
 
 
-if __name__ == '__main__':
+if __name__ == '__maingit __':
 
     config = read_config_file('cookbook/params.json')
 
