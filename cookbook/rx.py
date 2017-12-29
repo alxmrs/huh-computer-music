@@ -30,16 +30,16 @@ BLOCK_SIZE = PERIOD_SEC_LEN * SAMPLE_RATE
 # TODO(Alex) Break classes out into file/package
 class AudioOutput(rx.Observer):
 
-    def __init__(self):
+    def __init__(self, channels=1):
         super().__init__()
 
-        self.stream = sd.Stream(channels=1,
+        self.stream = sd.Stream(channels=channels,
                                 blocksize=BLOCK_SIZE,
                                 samplerate=SAMPLE_RATE,
                                 dtype=np.float32)
 
     def on_next(self, val):
-        self.stream.write(val.T)
+        self.stream.write(np.ascontiguousarray(val, dtype=np.float32))
 
     def on_error(self, err):
         self._close_stream()
@@ -99,18 +99,30 @@ if __name__ == '__main__':
     ts = rx.Observable.interval(1000) \
         .map(lambda i: hcm.signal.time(i, i + 1, SAMPLE_RATE)) \
 
-    control = ts \
+    sine_control = ts \
         .map(lambda t: sine(t, f0)) \
         .map(lambda s: sample_and_hold(s, SAMPLE_RATE, hold)) \
-        .map(lambda s: frequency_map(s, scale)) \
+        .map(lambda sp: frequency_map(sp, scale=scale))
 
-    period = rx.Observable.zip(ts, control,
-                            lambda t, c: hcm.signal.VCO(t, c, sine))
+    triangle_control = ts \
+        .map(lambda t: triangle(t, f0)) \
+        .map(lambda s: sample_and_hold(s, SAMPLE_RATE, hold)) \
+        .map(lambda sp: frequency_map(sp, scale=scale))
 
-    period.subscribe(print)
+    vco_sine = rx.Observable.zip(ts, sine_control,
+                                 lambda t, c: hcm.signal.VCO(t, c, sine))
 
-    output = AudioOutput()
-    period.subscribe(output)
+    vco_triangle = rx.Observable.zip(ts, triangle_control,
+                                     lambda t, c: hcm.signal.VCO(t, c, triangle))
+
+    vco_sine.subscribe(lambda x: print('sine: ', x.shape))
+    vco_triangle.subscribe(lambda x: print('triangle: ', x.shape))
+
+    dual_channel = rx.Observable.zip(vco_sine, vco_triangle,
+                                     lambda s, t: hcm.io.add_channels([s, t]))
+
+    output = AudioOutput(channels=2)
+    dual_channel.subscribe(output)
     output.start()
 
     # # Uncomment to write to file
