@@ -2,8 +2,9 @@
 import datetime as dt
 # TODO(Alex) Fix imports, they are messy
 from hcm.io import wav_write, append
-from hcm.music import notes, keys
-from hcm.music import scale_constructor, \
+from hcm.music.notes import notes
+from hcm.music.keys import keys
+from hcm.music.music import scale_constructor, \
     tempo_to_frequency, frequency_map
 
 from hcm.signal.osc import sine, triangle
@@ -12,7 +13,7 @@ from hcm.ts import sample_and_hold
 
 import hcm.signal
 
-from rx import Observable, Observer
+import rx
 
 import numpy as np
 import sounddevice as sd
@@ -24,7 +25,7 @@ BLOCK_SIZE = PERIOD_SEC_LEN * SAMPLE_RATE
 
 
 # TODO(Alex) Break classes out into file/package
-class AudioOutput(Observer):
+class AudioOutput(rx.Observer):
 
     def __init__(self):
         super().__init__()
@@ -53,7 +54,7 @@ class AudioOutput(Observer):
         self.stream.stop()
 
 
-class WavFileOutput(Observer):
+class WavFileOutput(rx.Observer):
 
     def __init__(self, filename: str):
         super().__init__()
@@ -84,7 +85,7 @@ if __name__ == '__main__':
 
     hold = tempo_to_frequency(200, 'quarter')
 
-    ts = Observable.interval(1000) \
+    ts = rx.Observable.interval(1000) \
         .map(lambda i: hcm.signal.time(i, i + 1, SAMPLE_RATE)) \
 
     control = ts \
@@ -92,7 +93,7 @@ if __name__ == '__main__':
         .map(lambda s: sample_and_hold(s, SAMPLE_RATE, hold)) \
         .map(lambda s: frequency_map(s, scale)) \
 
-    period = Observable.zip(ts, control,
+    period = rx.Observable.zip(ts, control,
                             lambda t, c: hcm.signal.VCO(t, c, sine))
 
     period.subscribe(print)
