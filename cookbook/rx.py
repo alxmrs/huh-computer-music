@@ -9,6 +9,9 @@ from hcm.music.music import scale_constructor, \
 
 from hcm.signal.osc import sine, triangle
 
+import hcm.signal.vc as vc
+
+
 from hcm.ts import sample_and_hold
 
 import hcm.signal
@@ -104,7 +107,7 @@ if __name__ == '__main__':
     hold = tempo_to_frequency(config['tempo'], config['note_duration'])
 
     ts = rx.Observable.interval(1000) \
-        .map(lambda i: hcm.signal.time(i, i + 1, SAMPLE_RATE)) \
+        .map(lambda i: hcm.ts.time(i, i + 1, SAMPLE_RATE)) \
 
     sine_control = demo_control(ts, lambda t: sine(t, f0),
                                 hold=hold, scale=scale)
@@ -113,10 +116,10 @@ if __name__ == '__main__':
                                 hold=hold, scale=scale)
 
     vco_sine = rx.Observable.zip(ts, sine_control,
-                                 lambda t, c: hcm.signal.VCO(t, c, sine))
+                                 lambda t, c: vc.VCO(t, c, sine))
 
     vco_triangle = rx.Observable.zip(ts, triangle_control,
-                                     lambda t, c: hcm.signal.VCO(t, c, triangle))
+                                     lambda t, c: vc.VCO(t, c, triangle))
 
     vco_sine.subscribe(lambda x: print('sine: ', x.shape))
     vco_triangle.subscribe(lambda x: print('triangle: ', x.shape))
