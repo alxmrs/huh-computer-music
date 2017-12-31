@@ -8,11 +8,6 @@ def normalize(signal):
     return normalized_signal
 
 
-def AM(signal, modulation):
-    """Amplitude modulation of two signals by pairwise multiplication. """
-    return np.multiply(signal, modulation)
-
-
 # hold = downsampled rate, or the number of times per second you want to sample
 def sample_and_hold(signal, sample_rate, hold):
     """Samples"""
