@@ -95,6 +95,8 @@ if __name__ == '__main__':
 
     config = read_config_file('cookbook/params.json')
 
+    ctrl_hz = config['control_hertz']
+
     f0 = hcm.music.notes[config['start_note']]
     key = hcm.music.keys[config['key']]
 
@@ -105,10 +107,10 @@ if __name__ == '__main__':
     ts = rx.Observable.interval(1000) \
         .map(lambda i: hcm.ts.time(i, i + 1, SAMPLE_RATE)) \
 
-    sine_control = demo_control(ts, lambda t: osc.sine(t, f0),
+    sine_control = demo_control(ts, lambda t: osc.sine(t, ctrl_hz),
                                 hold=hold, scale=scale)
 
-    triangle_control = demo_control(ts, lambda t: osc.triangle(t, f0),
+    triangle_control = demo_control(ts, lambda t: osc.triangle(t, ctrl_hz),
                                 hold=hold, scale=scale)
 
     vco_sine = rx.Observable.zip(ts, sine_control,

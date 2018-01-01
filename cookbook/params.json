@@ -1,5 +1,6 @@
 {
   "start_note": "Eb2",
+  "control_hertz": 1,
   "key": "Mixolydian",
   "num_octaves": 2,
   "tempo": 200,
