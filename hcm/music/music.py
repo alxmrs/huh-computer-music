@@ -46,21 +46,23 @@ def frequency_map(signal: np.ndarray, scale: np.ndarray) -> np.ndarray:
     return f
 
 
-def tempo_to_frequency(tempo, note_duration):
+def tempo_to_frequency(tempo, note_duration='quarter'):
     """Given tempo (in BPM) and note duration, gives corresponding frequency.
 
     """
+    durations = {
+        'whole': -2,
+        'half': -1,
+        'quarter': 0,
+        'eighth': 1,
+        'sixteenth': 2
+    }
+
     # assign appropriate numerical factor to note type
-    if note_duration == 'whole':
-        note = -2.0
-    if note_duration == 'half':
-        note = -1.0
-    if note_duration == 'quarter':
-        note = 0.0
-    if note_duration == 'eighth':
-        note = 1.0
-    if note_duration == 'sixteenth':
-        note = 2.0
+    if note_duration not in durations:
+        raise UserWarning('{} not a valid note duration, defaulting to quarter notes.')
+
+    note = durations.get(note_duration, 0)
 
     # calculate frequency
     frequency = (tempo / 60.) * 2 ** note  # [Hz]
