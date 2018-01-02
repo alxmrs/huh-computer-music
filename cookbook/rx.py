@@ -128,10 +128,20 @@ if __name__ == '__main__':
     vco_triangle = rx.Observable.zip(ts, triangle_control,
                                      lambda t, c: vc.VCO(t, c, osc.triangle))
 
-    vco_sine.subscribe(lambda x: print('sine: ', x.shape))
-    vco_triangle.subscribe(lambda x: print('triangle: ', x.shape))
+    adsr_dur = 1 / hold
+    quarter_dur = adsr_dur / 4
+    adsr = vc.ADSR(quarter_dur, quarter_dur, 0.5, quarter_dur, duration=adsr_dur, sample_rate=SAMPLE_RATE)
 
-    dual_channel = rx.Observable.zip(vco_sine, vco_triangle,
+    vca_sine = vco_sine.map(lambda x: vc.VCA(x, np.tile(adsr, len(x) // len(adsr) + 1)[:len(x)]))
+
+    vca_triangle = vco_triangle.map(lambda x: vc.VCA(x, np.tile(adsr, len(x) // len(adsr) + 1)[:len(x)]))
+
+
+
+    vca_sine.subscribe(lambda x: print('sine: ', x.shape))
+    vca_triangle.subscribe(lambda x: print('triangle: ', x.shape))
+
+    dual_channel = rx.Observable.zip(vca_sine, vca_triangle,
                                      lambda s, t: hcm.io.add_channels([s, t]))
 
     output = AudioOutput(channels=2)
