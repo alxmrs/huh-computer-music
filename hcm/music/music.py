@@ -66,6 +66,7 @@ def tempo_to_frequency(tempo, note_duration):
     frequency = (tempo / 60.) * 2 ** note  # [Hz]
     return frequency
 
+
 if __name__ == '__main__':
     import doctest
 

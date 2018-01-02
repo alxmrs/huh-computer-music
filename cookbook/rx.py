@@ -104,13 +104,22 @@ if __name__ == '__main__':
 
     hold = tempo_to_frequency(config['tempo'], config['note_duration'])
 
-    ts = rx.Observable.interval(1000) \
+    ts = rx.Observable.interval(990) \
         .map(lambda i: hcm.ts.time(i, i + 1, SAMPLE_RATE)) \
 
-    sine_control = demo_control(ts, lambda t: osc.sine(t, ctrl_hz),
+
+    def wavvy_control(osc_func):
+
+        def func(t):
+            return osc_func(np.exp(3 * np.sin(t)), ctrl_hz)
+
+        return func
+
+
+    sine_control = demo_control(ts, wavvy_control(osc.sine),
                                 hold=hold, scale=scale)
 
-    triangle_control = demo_control(ts, lambda t: osc.triangle(t, ctrl_hz),
+    triangle_control = demo_control(ts, wavvy_control(osc.triangle),
                                 hold=hold, scale=scale)
 
     vco_sine = rx.Observable.zip(ts, sine_control,
