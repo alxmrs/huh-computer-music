@@ -1,3 +1,4 @@
 Sphinx==1.6.4
 mypy==0.540
 hacking==1.0.0
+matplotlib==2.1.1
