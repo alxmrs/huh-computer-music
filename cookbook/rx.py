@@ -67,7 +67,8 @@ class WavFileOutput(rx.Observer):
         if self.cache is None:
             self.cache = value
         else:
-            self.cache = hcm.io.append(self.cache, value)
+            self.cache = np.append(self.cache, value, axis=0)
+            # self.cache = hcm.io.append(self.cache, value)
 
     def on_completed(self):
         pass
@@ -148,10 +149,10 @@ if __name__ == '__main__':
     dual_channel.subscribe(output)
     output.start()
 
-    # # Uncomment to write to file
-    # wout = WavFileOutput('./cache1.wav')
-    # period.subscribe(wout)
-    # input('Press any key to stop')
-    # wout.write_wav()
+    # Uncomment to write to file
+    wout = WavFileOutput('./wavvyadsr.wav')
+    dual_channel.subscribe(wout)
+    input('Press any key to stop')
+    wout.write_wav()
 
     input('Press any key to stop')
