@@ -9,6 +9,7 @@ from hcm.music.music import scale_constructor, tempo_to_frequency, frequency_map
 
 import hcm.signal.osc as osc
 import hcm.signal.vc as vc
+import hcm.dynamical.lorenz as lorenz
 
 import hcm.signal
 
@@ -112,7 +113,15 @@ if __name__ == '__main__':
     def wavvy_control(osc_func):
 
         def func(t):
-            return osc_func(np.exp(3 * np.sin(t)), ctrl_hz)
+            return osc_func(np.exp(3*np.sin(t)), ctrl_hz)
+
+        return func
+
+
+    def wavvy_control2(osc_func):
+
+        def func(t):
+            return osc_func(np.exp(2+3*np.sin(t)), ctrl_hz)
 
         return func
 
@@ -120,18 +129,18 @@ if __name__ == '__main__':
     sine_control = demo_control(ts, wavvy_control(osc.sine),
                                 hold=hold, scale=scale)
 
-    triangle_control = demo_control(ts, wavvy_control(osc.triangle),
+    triangle_control = demo_control(ts, wavvy_control2(osc.triangle),
                                 hold=hold, scale=scale)
 
     vco_sine = rx.Observable.zip(ts, sine_control,
-                                 lambda t, c: vc.VCO(t, c, osc.sine))
+                                 lambda t, c: vc.VCO(t, c, osc.triangle))
 
     vco_triangle = rx.Observable.zip(ts, triangle_control,
                                      lambda t, c: vc.VCO(t, c, osc.triangle))
 
     adsr_dur = 1 / hold
     quarter_dur = adsr_dur / 4
-    adsr = vc.ADSR(quarter_dur, quarter_dur, 0.5, quarter_dur, duration=adsr_dur, sample_rate=SAMPLE_RATE)
+    adsr = vc.ADSR(quarter_dur*1.5, quarter_dur, 0.5, quarter_dur, duration=adsr_dur, sample_rate=SAMPLE_RATE)
 
     vca_sine = vco_sine.map(lambda x: vc.VCA(x, np.tile(adsr, len(x) // len(adsr) + 1)[:len(x)]))
 
@@ -142,7 +151,7 @@ if __name__ == '__main__':
     vca_sine.subscribe(lambda x: print('sine: ', x.shape))
     vca_triangle.subscribe(lambda x: print('triangle: ', x.shape))
 
-    dual_channel = rx.Observable.zip(vca_sine, vca_triangle,
+    dual_channel = rx.Observable.zip(vca_sine, vca_sine,
                                      lambda s, t: hcm.io.add_channels([s, t]))
 
     output = AudioOutput(channels=2)

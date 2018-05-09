@@ -72,4 +72,4 @@ def tempo_to_frequency(tempo, note_duration='quarter'):
 if __name__ == '__main__':
     import doctest
 
-    doctest.testmod()
+    doctest.testmod(sss    A
