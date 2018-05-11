@@ -2,7 +2,7 @@ from hcm.ts import normalize
 import numpy as np
 
 
-def lorenz(t, time_scale):
+def lorenz(t, X0=(2, 3, 4), time_scale=1):
     """Lorenz system
 
     Parameters s, r, b are fixed.
@@ -14,12 +14,9 @@ def lorenz(t, time_scale):
     r = 28
     b = 8 / 3.
     # initialize state vector
-    X0 = [2, 3, 4]
     X = np.zeros([len(X0), len(t)])
     # label state variables
-    x = X[0]
-    y = X[1]
-    z = X[2]
+    x, y, z = X[0:2]
     # assign initial condition
     X[:, 0] = X0
     # define time step
@@ -30,7 +27,22 @@ def lorenz(t, time_scale):
         y[n + 1] = y[n] + dt * (r * x[n] - y[n] - x[n] * z[n])
         z[n + 1] = z[n] + dt * (x[n] * y[n] - b * z[n])
     # normalize
-    x = normalize(x)
-    y = normalize(y)
-    z = normalize(z)
+    x, y, z = map(normalize, (x, y, z))
     return x, y, z
+
+
+def dlorenz(t, x, y, z):
+    # params
+    s = 10
+    r = 28
+    b = 8/3.
+    dx = np.zeros(len(x))
+    dy = np.zeros(len(y))
+    dz = np.zeros(len(z))
+    for n in range(len(t)-1):
+        dx[n+1] = s * (y[n] - x[n])
+        dy[n+1] = r * x[n] - y[n] - x[n] * z[n]
+        dz[n+1] = x[n] * y[n] - b * z[n]
+    # normalize
+    dx, dy, dz = map(normalize, (dx, dy, dz))
+    return dx, dy, dz

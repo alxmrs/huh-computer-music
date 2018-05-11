@@ -1,2 +1,5 @@
 numpy==1.13.3
 scipy==0.19.1
+rx==1.6.1
+sounddevice=0.3.11
+matplotlib=2.2.2

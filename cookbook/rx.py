@@ -1,6 +1,7 @@
 
 import datetime as dt
 import hcm.io
+import hcm.music.const
 import hcm.ts
 import hcm.music
 
@@ -98,8 +99,8 @@ if __name__ == '__main__':
 
     ctrl_hz = config['control_hertz']
 
-    f0 = hcm.music.notes[config['start_note']]
-    key = hcm.music.keys[config['key']]
+    f0 = hcm.music.const.notes[config['start_note']]
+    key = hcm.music.const.keys[config['key']]
 
     scale = scale_constructor(f0, key, config['num_octaves'])
 
