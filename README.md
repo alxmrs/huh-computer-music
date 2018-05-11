@@ -1,4 +1,5 @@
 # huh-computer-music
 
 
-Check out the [demo notebook](/demos/huh_computer_music.ipynb).
+Check out the [demo notebook](/demos/Pycon2018-talk.ipynb).
+
