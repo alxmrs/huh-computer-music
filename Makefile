@@ -41,6 +41,8 @@ lint:
 # Copy client-side hooks over
 hooks:
 	cp .github/hooks/* .git/hooks/.
+	chmod +x .git/hooks/pre-push
+	chmod +x .git/hooks/pre-commit
 
 ## Set up python interpreter environment
 create_environment:
