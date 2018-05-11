@@ -1,5 +1,6 @@
-from hcm.ts import normalize
 import numpy as np
+
+from hcm.ts import normalize
 
 
 def lorenz(t, X0=(2, 3, 4), time_scale=1):
@@ -16,7 +17,7 @@ def lorenz(t, X0=(2, 3, 4), time_scale=1):
     # initialize state vector
     X = np.zeros([len(X0), len(t)])
     # label state variables
-    x, y, z = X[0:2]
+    x, y, z = X[0:3]
     # assign initial condition
     X[:, 0] = X0
     # define time step
