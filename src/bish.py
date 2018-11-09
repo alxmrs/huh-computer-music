@@ -5,7 +5,7 @@ import click
 import rx
 import hcm
 from hcm import types
-import threading
+
 
 @click.group(chain=True)
 def cli():
@@ -37,14 +37,17 @@ def process_commands(processors):
     for _ in stream:
         pass
 
+
 @cli.command('ts')
 @click.option('-r', '--sample-rate', type=int, default=8000, help='Number of samples per second (Hz).')
 @click.option('-i', '--interval', type=int, default=1000,
               help='How many milliseconds to wait before generating the next period')
 @types.generator
 def ts_cmd(sample_rate, interval) -> typing.Iterator:
-
-    threading.Timer()
+    yield (rx.Observable()
+           .interval(max(interval - 5, 1))
+           .map(lambda i: hcm.ts.time(i, i + 1, sample_rate))
+           )
 
 
 @cli.command('trace')
