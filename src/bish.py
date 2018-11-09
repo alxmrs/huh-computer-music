@@ -1,9 +1,12 @@
 import typing
+import time
 
+import numpy as np
 import click
 
 import rx
 import hcm
+import hcm.ts
 from hcm import types
 
 
@@ -38,28 +41,36 @@ def process_commands(processors):
         pass
 
 
-@cli.command('ts')
-@click.option('-r', '--sample-rate', type=int, default=8000, help='Number of samples per second (Hz).')
+@cli.command('period')
 @click.option('-i', '--interval', type=int, default=1000,
               help='How many milliseconds to wait before generating the next period')
 @types.generator
-def ts_cmd(sample_rate, interval) -> typing.Iterator:
-    yield (rx.Observable()
-           .interval(max(interval - 5, 1))
-           .map(lambda i: hcm.ts.time(i, i + 1, sample_rate))
-           )
+def metronome_cmd(interval) -> typing.Iterable[int]:
+    interval_sec = (interval - 5) / 1000
+    target = time.time() + interval_sec
+    i = 0
+    while True:
+        if time.time() >= target:
+            target = time.time() + interval_sec
+            yield i
+            i += 1
+
+
+@cli.command('ts')
+@click.option('-r', '--sample-rate', type=int, default=8000, help='Number of samples per second (Hz).')
+@types.processor
+def ts_cmd(signals: typing.Iterable[int], sample_rate: int) -> typing.Iterable[np.ndarray]:
+    for s in signals:
+        yield hcm.ts.time(s, s+1, sample_rate)
 
 
 @cli.command('trace')
 @types.processor
-def trace_cmd(lines: typing.Iterator) -> typing.Iterator:
+def trace_cmd(signals: typing.Iterator) -> typing.Iterator:
     """Writes input to stdout."""
-    try:
-        for line in lines:
-            click.echo(line)
-            yield line
-    except Exception as e:
-        click.echo('Error tracing input. %s' % e, err=True)
+    for obs in signals:
+        click.echo(obs)
+        yield obs
 
 
 if __name__ == '__main__':
