@@ -11,7 +11,15 @@ def processor(f):
     def new_func(*args, **kwargs):
         def processor(stream):
             return f(stream, *args, **kwargs)
+        processor.__name__ = f.__name__
         return processor
+    return update_wrapper(new_func, f)
+
+
+def rx_generator(f):
+    @processor
+    def new_func(*args, **kwargs):
+        return f(*args, **kwargs)
     return update_wrapper(new_func, f)
 
 

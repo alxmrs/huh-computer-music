@@ -22,7 +22,6 @@ def cli():
     pass
 
 
-@cli.resultcallback()
 def process_commands(processors):
     """This result callback is invoked with an iterable of all the chained
     subcommands.  As in this example each subcommand returns a function
@@ -41,37 +40,42 @@ def process_commands(processors):
         pass
 
 
+@cli.resultcallback()
+def rx_process_commands(processors):
+    # start with generator
+    stream = ()
+
+    for proc in processors:
+        stream = proc(stream)
+
+    input('Press any key to stop\n')
+
+
 @cli.command('period')
-@click.option('-i', '--interval', type=int, default=1000,
+@click.option('-i', '--interval', type=int, default=999,
               help='How many milliseconds to wait before generating the next period')
-@types.generator
-def metronome_cmd(interval) -> typing.Iterable[int]:
-    interval_sec = (interval - 5) / 1000
-    target = time.time() + interval_sec
-    i = 0
-    while True:
-        if time.time() >= target:
-            target = time.time() + interval_sec
-            yield i
-            i += 1
+@types.rx_generator
+def metronome_cmd(stream, interval) -> rx.Observable:
+    return (rx.Observable
+            .interval(interval)
+            )
 
 
 @cli.command('ts')
 @click.option('-r', '--sample-rate', type=int, default=8000, help='Number of samples per second (Hz).')
 @types.processor
-def ts_cmd(signals: typing.Iterable[int], sample_rate: int) -> typing.Iterable[np.ndarray]:
-    for s in signals:
-        yield hcm.ts.time(s, s+1, sample_rate)
+def ts_cmd(observable: rx.Observable, sample_rate: int) -> rx.Observable:
+    return observable.map(lambda s: hcm.ts.time(s, s+1, sample_rate))
 
 
 @cli.command('trace')
 @types.processor
-def trace_cmd(signals: typing.Iterator) -> typing.Iterator:
+def trace_cmd(observable: rx.Observable) -> rx.Observable:
     """Writes input to stdout."""
-    for obs in signals:
-        click.echo(obs)
-        yield obs
+    observable.subscribe(click.echo)
+    return observable
 
 
 if __name__ == '__main__':
     cli()
+    input('Type any input to stop')
