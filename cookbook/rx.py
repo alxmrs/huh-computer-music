@@ -1,5 +1,4 @@
-
-import datetime as dt
+import hcm
 import hcm.io
 import hcm.music.const
 import hcm.ts
@@ -19,66 +18,10 @@ import pathlib
 import json
 
 import numpy as np
-import sounddevice as sd
-
 
 PERIOD_SEC_LEN = 1
 SAMPLE_RATE = 8000
 BLOCK_SIZE = PERIOD_SEC_LEN * SAMPLE_RATE
-
-
-# TODO(Alex) Break classes out into file/package
-class AudioOutput(rx.Observer):
-
-    def __init__(self, channels=1):
-        super().__init__()
-
-        self.stream = sd.Stream(channels=channels,
-                                blocksize=BLOCK_SIZE,
-                                samplerate=SAMPLE_RATE,
-                                dtype=np.float32)
-
-    def on_next(self, val):
-        self.stream.write(np.ascontiguousarray(val, dtype=np.float32))
-
-    def on_error(self, err):
-        self._close_stream()
-
-    def on_completed(self):
-        self._close_stream()
-
-    def _close_stream(self):
-        self.stream.close()
-
-    def start(self):
-        self.stream.start()
-
-    def stop(self):
-        self.stream.stop()
-
-
-class WavFileOutput(rx.Observer):
-
-    def __init__(self, filename: str):
-        super().__init__()
-        self.filename = filename
-        self.cache = None
-
-    def on_next(self, value):
-        if self.cache is None:
-            self.cache = value
-        else:
-            self.cache = np.append(self.cache, value, axis=0)
-            # self.cache = hcm.io.append(self.cache, value)
-
-    def on_completed(self):
-        pass
-
-    def write_wav(self):
-        hcm.io.wav_write(self.filename, SAMPLE_RATE, self.cache)
-
-    def on_error(self, error):
-        print('An error occured, couldn\'t output wavefile', error)
 
 
 def read_config_file(filepath: typing.Union[pathlib.Path, typing.AnyStr]) -> typing.Dict:
@@ -146,12 +89,12 @@ if __name__ == '__main__':
     dual_channel = rx.Observable.zip(vca_sine, vca_triangle,
                                      lambda s, t: hcm.io.add_channels([s, t]))
 
-    output = AudioOutput(channels=2)
+    output = hcm.io.AudioOutput(channels=2)
     dual_channel.subscribe(output)
     output.start()
 
     # Uncomment to write to file
-    wout = WavFileOutput('./wavvyadsr.wav')
+    wout = hcm.io.WavFileOutput('./wavvyadsr.wav')
     dual_channel.subscribe(wout)
     input('Press any key to stop')
     wout.write_wav()

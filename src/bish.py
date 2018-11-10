@@ -7,7 +7,12 @@ import click
 import rx
 import hcm
 import hcm.ts
+import hcm.io
+from hcm.signal import osc
 from hcm import types
+
+SAMPLE_RATE = 8000
+INTERVAL_LENGTH = 1000
 
 
 @click.group(chain=True)
@@ -56,15 +61,15 @@ def rx_process_commands(processors):
               help='How many milliseconds to wait before generating the next period')
 @types.rx_generator
 def metronome_cmd(stream, interval) -> rx.Observable:
-    return (rx.Observable
-            .interval(interval)
-            )
+    return rx.Observable.interval(interval)
 
 
 @cli.command('ts')
 @click.option('-r', '--sample-rate', type=int, default=8000, help='Number of samples per second (Hz).')
 @types.processor
 def ts_cmd(observable: rx.Observable, sample_rate: int) -> rx.Observable:
+    global SAMPLE_RATE
+    SAMPLE_RATE = sample_rate
     return observable.map(lambda s: hcm.ts.time(s, s+1, sample_rate))
 
 
@@ -76,6 +81,32 @@ def trace_cmd(observable: rx.Observable) -> rx.Observable:
     return observable
 
 
+@cli.command('speaker')
+@types.processor
+def speaker_cmd(observable: rx.Observable) -> rx.Observable:
+    """Pipes current audio stream to speaker (audio output)"""
+    speaker_observer = hcm.io.AudioOutput(channels=2)
+    observable.subscribe(speaker_observer)
+    speaker_observer.start()
+    return observable
+
+
+@cli.command('osc')
+@click.option('-w', '--wave', type=int, default=0)  # TODO turn into choices
+@click.option('-f', '--frequency', type=float, default=1)
+@types.processor
+def osc_cmd(observable: rx.Observable,  wave, frequency) -> rx.Observable:
+    options = [osc.sine, osc.triangle, osc.square]
+    chosen_wave = options[wave]
+
+    return observable.map(lambda o: chosen_wave(o, frequency))
+
+
+@cli.command('vco')
+@types.processor
+def vco_cmd(observable: rx.Observable) -> rx.Observable:
+    pass
+
+
 if __name__ == '__main__':
     cli()
-    input('Type any input to stop')
