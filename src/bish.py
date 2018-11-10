@@ -45,6 +45,23 @@ def first(it: typing.Iterable):
     return it.__iter__().__next__()
 
 
+def parse_endofunctor(obs):
+    if type(obs) is tuple and len(obs) == 2:
+        return obs[1]
+    return obs
+
+
+def identity(x):
+    return x
+
+
+def handle_endofunctor(obv, op: typing.Callable = identity):
+    if type(obv) is tuple and len(obv) == 2:
+        return obv[0], op(obv[1])
+    else:
+        return op(obv)
+
+
 @cli.command('period')
 @click.option('-i', '--interval', type=int, default=INTERVAL_LENGTH,
               help='How many milliseconds to wait before generating the next period')
@@ -75,16 +92,11 @@ def trace_cmd(observable: rx.Observable) -> rx.Observable:
 def speaker_cmd(observable: rx.Observable) -> rx.Observable:
     """Pipes current audio stream to speaker (audio output)"""
 
-    def get_optional_right(obs):
-        if type(obs) is tuple and len(obs) == 2:
-            return obs[1]
-        return obs
-
     speaker_observer = hcm.io.AudioOutput(channels=2)
 
     (
         observable
-            .map(get_optional_right)
+            .map(parse_endofunctor)
             .subscribe(speaker_observer)
     )
 
@@ -106,14 +118,21 @@ def osc_cmd(observable: rx.Observable, wave, frequency) -> rx.Observable:
 @click.option('-v', '--val', type=float, default=0)
 @types.processor
 def osc_cmd(observable: rx.Observable, val) -> rx.Observable:
-    return observable.map(lambda o: (o[0], val + o[1]))
+    def handle_add(obv):
+        return handle_endofunctor(obv, lambda o: val + o)
+
+    return observable.map(handle_add)
 
 
 @cli.command('mul')
 @click.option('-v', '--val', type=float, default=0)
 @types.processor
 def osc_cmd(observable: rx.Observable, val) -> rx.Observable:
-    return observable.map(lambda o: (o[0], val * o[1]))
+
+    def handle_mul(obv):
+        return handle_endofunctor(obv, lambda o: val * o)
+
+    return observable.map(handle_mul)
 
 
 @cli.command('quantize')
