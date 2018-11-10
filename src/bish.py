@@ -48,15 +48,7 @@ def rx_process_commands(processors):
 
 
 def first(it: typing.Iterable):
-    """Gets the first value of an iterable
-
-    Args:
-        it: Any sequence that is iterable
-
-    Returns:
-        The first value in the sequence.
-
-    """
+    """Gets the first value of an iterable"""
     return it.__iter__().__next__()
 
 
@@ -165,6 +157,7 @@ def osc_cmd(observable: rx.Observable, val) -> rx.Observable:
               default=first(hcm.music.DURATIONS.keys()))
 @types.processor
 def quantize_cmd(observable: rx.Observable, bpm: int = 150, note_duration: str = 'quarter') -> rx.Observable:
+    """Quantize input frequency given a desired beats-per-minute and note duration."""
     hold = hcm.music.tempo_to_frequency(bpm, note_duration)
     return observable.map(lambda o: (o[0], hcm.music.sample_and_hold(o[1], SAMPLE_RATE, hold)))
 
@@ -175,6 +168,7 @@ def quantize_cmd(observable: rx.Observable, bpm: int = 150, note_duration: str =
 @click.option('-n', '--num-octaves', type=int, default=2)
 @types.processor
 def scale_map_cmd(observable: rx.Observable, freq_start, key: str, num_octaves: int = 2) -> rx.Observable:
+    """Map input control signal into a musical scale with a starting frequency, key, and octave range."""
     chosen_key = hcm.music.keys[key]
     scale = hcm.music.scale_constructor(freq_start, chosen_key, num_octaves)
     return observable.map(lambda o: (o[0], hcm.music.frequency_map(o[1], scale)))
@@ -184,8 +178,19 @@ def scale_map_cmd(observable: rx.Observable, freq_start, key: str, num_octaves: 
 @click.option('-w', '--wave', type=click.Choice(list(WAVES.keys())), default=first(WAVES.keys()))
 @types.processor
 def vco_cmd(observable: rx.Observable, wave) -> rx.Observable:
-    chosen_wave = WAVES[wave]
+    """Use the input as a control signal for frequency.
 
+    Can specify the type of oscillation (sine, triangle, square waves)
+
+    Args:
+        observable: Observable with input signal. Should be a tuple with the input time-series and control signal.
+        wave: Type of oscillator (Choice of sine, triangle, or square waves).
+
+    Returns:
+        A single time series representing the new audio.
+
+    """
+    chosen_wave = WAVES[wave]
     return observable.map(lambda o: vc.VCO(*o, chosen_wave))
 
 
