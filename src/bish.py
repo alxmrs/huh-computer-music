@@ -8,6 +8,7 @@ import rx
 import hcm
 import hcm.ts
 import hcm.io
+import hcm.music
 from hcm.signal import osc, vc
 from hcm import types
 
@@ -111,10 +112,10 @@ def osc_cmd(observable: rx.Observable, val) -> rx.Observable:
 
 @cli.command('quantize')
 @click.option('-b', '--bpm', type=int, default=150)
-@click.option('-d', '--note-duration', type=str, default='eight')  # TODO: turn into choices
+@click.option('-d', '--note-duration', type=str, default='eighth')  # TODO: turn into choices
 @types.processor
-def quantize_cmd(observable: rx.Observable, bmp: int = 150, note_duration: str = 'eight') -> rx.Observable:
-    hold = hcm.music.tempo_to_frequency(bmp, note_duration)
+def quantize_cmd(observable: rx.Observable, bpm: int = 150, note_duration: str = 'eight') -> rx.Observable:
+    hold = hcm.music.tempo_to_frequency(bpm, note_duration)
     return observable.map(lambda o: (o[0], hcm.music.sample_and_hold(o[1], SAMPLE_RATE, hold)))
 
 
@@ -124,7 +125,9 @@ def quantize_cmd(observable: rx.Observable, bmp: int = 150, note_duration: str =
 @click.option('-n', '--num-octaves', type=int, default=2)
 @types.processor
 def scale_map_cmd(observable: rx.Observable, freq_start, key: str, num_octaves: int = 2) -> rx.Observable:
-    scale = hcm.music.scale_constructor(freq_start, key, num_octaves)
+    chosen_key = hcm.music.keys[key]
+    scale = hcm.music.scale_constructor(freq_start, chosen_key, num_octaves)
+    return observable.map(lambda o: (o[0], hcm.music.frequency_map(o[1], scale)))
 
 
 @cli.command('vco')
