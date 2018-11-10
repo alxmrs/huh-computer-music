@@ -27,24 +27,6 @@ def cli():
     pass
 
 
-def process_commands(processors):
-    """This result callback is invoked with an iterable of all the chained
-    subcommands.  As in this example each subcommand returns a function
-    we can chain them together to feed one into the other, similar to how
-    a pipe on unix works.
-    """
-    # Start with an empty iterable.
-    stream = ()
-
-    # Pipe it through all stream processors.
-    for processor in processors:
-        stream = processor(stream)
-
-    # Evaluate the stream and throw away the items.
-    for _ in stream:
-        pass
-
-
 @cli.resultcallback()
 def rx_process_commands(processors):
     # start with generator
@@ -57,11 +39,11 @@ def rx_process_commands(processors):
 
 
 @cli.command('period')
-@click.option('-i', '--interval', type=int, default=999,
+@click.option('-i', '--interval', type=int, default=INTERVAL_LENGTH,
               help='How many milliseconds to wait before generating the next period')
 @types.rx_generator
 def metronome_cmd(stream, interval) -> rx.Observable:
-    return rx.Observable.interval(interval)
+    return rx.Observable.interval(interval - 1)
 
 
 @cli.command('ts')
@@ -118,6 +100,31 @@ def osc_cmd(observable: rx.Observable,  wave, frequency) -> rx.Observable:
 @types.processor
 def osc_cmd(observable: rx.Observable, val) -> rx.Observable:
     return observable.map(lambda o: (o[0], val + o[1]))
+
+
+@cli.command('mul')
+@click.option('-v', '--val', type=float, default=0)
+@types.processor
+def osc_cmd(observable: rx.Observable, val) -> rx.Observable:
+    return observable.map(lambda o: (o[0], val * o[1]))
+
+
+@cli.command('quantize')
+@click.option('-b', '--bpm', type=int, default=150)
+@click.option('-d', '--note-duration', type=str, default='eight')  # TODO: turn into choices
+@types.processor
+def quantize_cmd(observable: rx.Observable, bmp: int = 150, note_duration: str = 'eight') -> rx.Observable:
+    hold = hcm.music.tempo_to_frequency(bmp, note_duration)
+    return observable.map(lambda o: (o[0], hcm.music.sample_and_hold(o[1], SAMPLE_RATE, hold)))
+
+
+@cli.command('scale-map')
+@click.option('-f', '--freq-start', type=float, default=261.63)
+@click.option('-k', '--key', type=str, default='Mixolydian')  # TODO: turn into choices
+@click.option('-n', '--num-octaves', type=int, default=2)
+@types.processor
+def scale_map_cmd(observable: rx.Observable, freq_start, key: str, num_octaves: int = 2) -> rx.Observable:
+    scale = hcm.music.scale_constructor(freq_start, key, num_octaves)
 
 
 @cli.command('vco')
