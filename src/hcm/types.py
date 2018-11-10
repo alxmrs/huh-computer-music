@@ -63,3 +63,37 @@ class MutuallyExclusiveOption(click.Option):
             opts,
             args
         )
+
+
+class AliasedGroup(click.Group):
+
+    def has_match(self, candidate: str, target: str) -> bool:
+        # Match shortened command (e.g. pu --> push)
+        if candidate.startswith(target):
+            return True
+
+        # Match abbreviated command (e.g. sm --> scale-map)
+        if '-' in candidate:
+            tokens = candidate.split('-')
+            abrev = ''.join(map(lambda x: x[0], tokens))
+
+            if abrev == target:
+                return True
+
+        return False
+
+    def get_command(self, ctx, cmd_name):
+        rv = click.Group.get_command(self, ctx, cmd_name)
+        if rv is not None:
+            return rv
+
+        matches = [x for x in self.list_commands(ctx)
+                   if self.has_match(x, cmd_name)]
+
+        if not matches:
+            return None
+
+        elif len(matches) == 1:
+            return click.Group.get_command(self, ctx, matches[0])
+
+        ctx.fail('Too many matches: %s' % ', '.join(sorted(matches)))
