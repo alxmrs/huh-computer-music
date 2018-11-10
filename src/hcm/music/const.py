@@ -137,3 +137,10 @@ sevenths = {
     'aug'      : [0, 4, 8, 10],
     'aug_maj'  : [0, 4, 8, 11],
 }
+DURATIONS = {
+    'whole': -2,
+    'half': -1,
+    'quarter': 0,
+    'eighth': 1,
+    'sixteenth': 2
+}

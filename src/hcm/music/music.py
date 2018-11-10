@@ -1,5 +1,7 @@
 import numpy as np
 
+from hcm.music.const import DURATIONS
+
 
 def scale_constructor(f0, key, num_octaves):
     """Makes a vector of frequencies to go over """
@@ -50,19 +52,12 @@ def tempo_to_frequency(tempo, note_duration='quarter'):
     """Given tempo (in BPM) and note duration, gives corresponding frequency.
 
     """
-    durations = {
-        'whole': -2,
-        'half': -1,
-        'quarter': 0,
-        'eighth': 1,
-        'sixteenth': 2
-    }
 
     # assign appropriate numerical factor to note type
-    if note_duration not in durations:
+    if note_duration not in DURATIONS:
         raise UserWarning('{} not a valid note duration, defaulting to quarter notes.')
 
-    note = durations.get(note_duration, 0)
+    note = DURATIONS.get(note_duration, 0)
 
     # calculate frequency
     frequency = (tempo / 60.) * 2 ** note  # [Hz]

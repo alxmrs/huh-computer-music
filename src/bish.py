@@ -15,6 +15,8 @@ from hcm import types
 SAMPLE_RATE = 8000
 INTERVAL_LENGTH = 1000
 
+WAVES = {'sine': osc.sine, 'triangle': osc.triangle, 'square': osc.square}
+
 
 @click.group(chain=True)
 def cli():
@@ -39,6 +41,10 @@ def rx_process_commands(processors):
     input('Press any key to stop\n')
 
 
+def first(it: typing.Iterable):
+    return it.__iter__().__next__()
+
+
 @cli.command('period')
 @click.option('-i', '--interval', type=int, default=INTERVAL_LENGTH,
               help='How many milliseconds to wait before generating the next period')
@@ -48,12 +54,12 @@ def metronome_cmd(stream, interval) -> rx.Observable:
 
 
 @cli.command('ts')
-@click.option('-r', '--sample-rate', type=int, default=8000, help='Number of samples per second (Hz).')
+@click.option('-r', '--sample-rate', type=int, default=SAMPLE_RATE, help='Number of samples per second (Hz).')
 @types.processor
 def ts_cmd(observable: rx.Observable, sample_rate: int) -> rx.Observable:
     global SAMPLE_RATE
     SAMPLE_RATE = sample_rate
-    return observable.map(lambda s: hcm.ts.time(s, s+1, sample_rate))
+    return observable.map(lambda s: hcm.ts.time(s, s + 1, sample_rate))
 
 
 @cli.command('trace')
@@ -76,22 +82,22 @@ def speaker_cmd(observable: rx.Observable) -> rx.Observable:
 
     speaker_observer = hcm.io.AudioOutput(channels=2)
 
-    (observable
-     .map(get_optional_right)
-     .subscribe(speaker_observer)
-     )
+    (
+        observable
+            .map(get_optional_right)
+            .subscribe(speaker_observer)
+    )
 
     speaker_observer.start()
     return observable
 
 
 @cli.command('osc')
-@click.option('-w', '--wave', type=int, default=0)  # TODO turn into choices
-@click.option('-f', '--frequency', type=float, default=1)
+@click.option('-w', '--wave', type=click.Choice(list(WAVES.keys())), default=first(WAVES.keys()))
+@click.option('-f', '--frequency', type=float, default=1.0)
 @types.processor
-def osc_cmd(observable: rx.Observable,  wave, frequency) -> rx.Observable:
-    options = [osc.sine, osc.triangle, osc.square]
-    chosen_wave = options[wave]
+def osc_cmd(observable: rx.Observable, wave, frequency) -> rx.Observable:
+    chosen_wave = WAVES[wave]
 
     return observable.map(lambda o: (o, chosen_wave(o, frequency)))
 
@@ -112,16 +118,18 @@ def osc_cmd(observable: rx.Observable, val) -> rx.Observable:
 
 @cli.command('quantize')
 @click.option('-b', '--bpm', type=int, default=150)
-@click.option('-d', '--note-duration', type=str, default='eighth')  # TODO: turn into choices
+@click.option('-d', '--note-duration',
+              type=click.Choice(list(hcm.music.DURATIONS.keys())),
+              default=first(hcm.music.DURATIONS.keys()))
 @types.processor
-def quantize_cmd(observable: rx.Observable, bpm: int = 150, note_duration: str = 'eight') -> rx.Observable:
+def quantize_cmd(observable: rx.Observable, bpm: int = 150, note_duration: str = 'quarter') -> rx.Observable:
     hold = hcm.music.tempo_to_frequency(bpm, note_duration)
     return observable.map(lambda o: (o[0], hcm.music.sample_and_hold(o[1], SAMPLE_RATE, hold)))
 
 
 @cli.command('scale-map')
 @click.option('-f', '--freq-start', type=float, default=261.63)
-@click.option('-k', '--key', type=str, default='Mixolydian')  # TODO: turn into choices
+@click.option('-k', '--key', type=click.Choice(list(hcm.music.keys.keys())), default=first(hcm.music.keys.keys()))
 @click.option('-n', '--num-octaves', type=int, default=2)
 @types.processor
 def scale_map_cmd(observable: rx.Observable, freq_start, key: str, num_octaves: int = 2) -> rx.Observable:
@@ -131,11 +139,10 @@ def scale_map_cmd(observable: rx.Observable, freq_start, key: str, num_octaves: 
 
 
 @cli.command('vco')
-@click.option('-w', '--wave', type=int, default=0)  # TODO turn into choices
+@click.option('-w', '--wave', type=click.Choice(list(WAVES.keys())), default=first(WAVES.keys()))
 @types.processor
 def vco_cmd(observable: rx.Observable, wave) -> rx.Observable:
-    options = [osc.sine, osc.triangle, osc.square]
-    chosen_wave = options[wave]
+    chosen_wave = WAVES[wave]
 
     return observable.map(lambda o: vc.VCO(*o, chosen_wave))
 
