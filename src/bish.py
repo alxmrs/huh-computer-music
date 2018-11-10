@@ -8,7 +8,7 @@ import rx
 import hcm
 import hcm.ts
 import hcm.io
-from hcm.signal import osc
+from hcm.signal import osc, vc
 from hcm import types
 
 SAMPLE_RATE = 8000
@@ -85,8 +85,19 @@ def trace_cmd(observable: rx.Observable) -> rx.Observable:
 @types.processor
 def speaker_cmd(observable: rx.Observable) -> rx.Observable:
     """Pipes current audio stream to speaker (audio output)"""
+
+    def get_optional_right(obs):
+        if type(obs) is tuple and len(obs) == 2:
+            return obs[1]
+        return obs
+
     speaker_observer = hcm.io.AudioOutput(channels=2)
-    observable.subscribe(speaker_observer)
+
+    (observable
+     .map(get_optional_right)
+     .subscribe(speaker_observer)
+     )
+
     speaker_observer.start()
     return observable
 
@@ -99,13 +110,24 @@ def osc_cmd(observable: rx.Observable,  wave, frequency) -> rx.Observable:
     options = [osc.sine, osc.triangle, osc.square]
     chosen_wave = options[wave]
 
-    return observable.map(lambda o: chosen_wave(o, frequency))
+    return observable.map(lambda o: (o, chosen_wave(o, frequency)))
+
+
+@cli.command('add')
+@click.option('-v', '--val', type=float, default=0)
+@types.processor
+def osc_cmd(observable: rx.Observable, val) -> rx.Observable:
+    return observable.map(lambda o: (o[0], val + o[1]))
 
 
 @cli.command('vco')
+@click.option('-w', '--wave', type=int, default=0)  # TODO turn into choices
 @types.processor
-def vco_cmd(observable: rx.Observable) -> rx.Observable:
-    pass
+def vco_cmd(observable: rx.Observable, wave) -> rx.Observable:
+    options = [osc.sine, osc.triangle, osc.square]
+    chosen_wave = options[wave]
+
+    return observable.map(lambda o: vc.VCO(*o, chosen_wave))
 
 
 if __name__ == '__main__':
