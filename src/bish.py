@@ -85,10 +85,11 @@ def period_cmd(stream, interval) -> rx.Observable:
 @click.option('-r', '--sample-rate', type=int, default=SAMPLE_RATE, help='Number of samples per second (Hz).')
 @types.processor
 def ts_cmd(observable: rx.Observable, sample_rate: int) -> rx.Observable:
-    """Transform an integer into a 1 second timeseries with the desired sample rate."""
+    """Transform an integer into a 1 second time-series with the desired sample rate."""
     global SAMPLE_RATE
     SAMPLE_RATE = sample_rate
-    return observable.map(lambda s: hcm.ts.time(s, s + 1, sample_rate))
+    end_range = INTERVAL_LENGTH / 1000
+    return observable.map(lambda s: hcm.ts.time(s, s + end_range, sample_rate))
 
 
 @cli.command('trace')
@@ -129,23 +130,23 @@ def osc_cmd(observable: rx.Observable, wave, frequency) -> rx.Observable:
 
 
 @cli.command('add')
-@click.option('-v', '--val', type=float, default=0)
+@click.option('-c', '--constant', type=float, default=0)
 @types.processor
-def osc_cmd(observable: rx.Observable, val) -> rx.Observable:
+def add_cmd(observable: rx.Observable, constant) -> rx.Observable:
     """Add a constant to the input signal"""
     def handle_add(obv):
-        return handle_endofunctor(obv, lambda o: val + o)
+        return handle_endofunctor(obv, lambda o: constant + o)
 
     return observable.map(handle_add)
 
 
 @cli.command('multiply')
-@click.option('-v', '--val', type=float, default=0)
+@click.option('-c', '--constant', type=float, default=0)
 @types.processor
-def osc_cmd(observable: rx.Observable, val) -> rx.Observable:
+def mult_cmd(observable: rx.Observable, constant) -> rx.Observable:
     """Multiply the input signal by a constant"""
     def handle_mul(obv):
-        return handle_endofunctor(obv, lambda o: val * o)
+        return handle_endofunctor(obv, lambda o: constant * o)
 
     return observable.map(handle_mul)
 
