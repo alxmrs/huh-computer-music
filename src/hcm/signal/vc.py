@@ -1,5 +1,6 @@
 import numpy as np
-import hcm.ts
+
+import hcm
 
 # allow voltage control of osc frequency
 # here freq is now an array w/ same length as t
