@@ -150,7 +150,7 @@ def osc_cmd(observable: rx.Observable, val) -> rx.Observable:
     return observable.map(handle_mul)
 
 
-@cli.command('quantize')
+@cli.command('quantize-frequency')
 @click.option('-b', '--bpm', type=int, default=150)
 @click.option('-d', '--note-duration',
               type=click.Choice(list(hcm.music.DURATIONS.keys())),
@@ -159,7 +159,7 @@ def osc_cmd(observable: rx.Observable, val) -> rx.Observable:
 def quantize_cmd(observable: rx.Observable, bpm: int = 150, note_duration: str = 'quarter') -> rx.Observable:
     """Quantize input frequency given a desired beats-per-minute and note duration."""
     hold = hcm.music.tempo_to_frequency(bpm, note_duration)
-    return observable.map(lambda o: (o[0], hcm.music.sample_and_hold(o[1], SAMPLE_RATE, hold)))
+    return observable.map(lambda o: (o[0], hcm.ts.sample_and_hold(o[1], SAMPLE_RATE, hold)))
 
 
 @cli.command('scale-map')
