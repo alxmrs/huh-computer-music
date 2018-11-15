@@ -7,6 +7,7 @@ import hcm
 import hcm.io
 import hcm.music
 import hcm.ts
+import hcm.dynamical
 
 from hcm import types
 from hcm.signal import osc, vc, noise
@@ -162,6 +163,7 @@ def mult_cmd(observable: rx.Observable, constant) -> rx.Observable:
 def quantize_cmd(observable: rx.Observable, bpm: int = 150, note_duration: str = 'quarter') -> rx.Observable:
     """Quantize input frequency given a desired beats-per-minute and note duration."""
     hold = hcm.music.tempo_to_frequency(bpm, note_duration)
+
     return observable.map(lambda o: (o[0], hcm.ts.sample_and_hold(o[1], SAMPLE_RATE, hold)))
 
 
@@ -203,6 +205,23 @@ def vco_cmd(observable: rx.Observable, wave) -> rx.Observable:
 def noise_cmd(observable: rx.Observable, type: str) -> rx.Observable:
     chosen_noise = NOISES[type]
     return observable.map(lambda o: (o, chosen_noise(o)))
+
+
+@cli.command('lorenz')
+@click.option('-t', '--time-scale', type=int, default=0.5)
+@types.processor
+def lorenz_cmd(observable: rx.Observable, time_scale: int) -> rx.Observable:
+    return observable.map(lambda o: (o, hcm.dynamical.lorenz(o, time_scale=time_scale)))
+
+
+@cli.command('mux')
+@click.option('-i', '--index', type=int, default=0)
+@types.processor
+def multiplex_cmd(observable: rx.Observable, index: int) -> rx.Observable:
+    return (
+        observable
+        .map(lambda o: handle_endofunctor(o, lambda s: s[index]))
+    )
 
 
 if __name__ == '__main__':

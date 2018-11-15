@@ -1,6 +1,7 @@
 
 import numpy as np
 
+
 def normalize(signal):
     """Restrict the range of a signal to the closed interval [-1.0, 1.0]. """
     normalized_signal = signal / max(signal.max(), signal.min(), key=abs)
