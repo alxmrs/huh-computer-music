@@ -9,12 +9,13 @@ import hcm.music
 import hcm.ts
 
 from hcm import types
-from hcm.signal import osc, vc
+from hcm.signal import osc, vc, noise
 
 SAMPLE_RATE = 8000  # hz
 INTERVAL_LENGTH = 1000  # ms
 
 WAVES = {'sine': osc.sine, 'triangle': osc.triangle, 'square': osc.square}
+NOISES = {'white': noise.white_noise, 'brown': noise.brownian_noise}
 
 
 @click.group(chain=True, cls=types.AliasedGroup)
@@ -44,7 +45,8 @@ def rx_process_commands(processors):
     for proc in processors:
         stream = proc(stream)
 
-    input('Press any key to stop\n')
+    while True:
+        pass
 
 
 def first(it: typing.Iterable):
@@ -193,6 +195,14 @@ def vco_cmd(observable: rx.Observable, wave) -> rx.Observable:
     """
     chosen_wave = WAVES[wave]
     return observable.map(lambda o: vc.VCO(*o, chosen_wave))
+
+
+@cli.command('noise')
+@click.option('-t', '--type', type=click.Choice(list(NOISES.keys())), default=first(NOISES.keys()))
+@types.processor
+def noise_cmd(observable: rx.Observable, type: str) -> rx.Observable:
+    chosen_noise = NOISES[type]
+    return observable.map(lambda o: (o, chosen_noise(o)))
 
 
 if __name__ == '__main__':
