@@ -9,7 +9,8 @@
 
 PROJECT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 PROJECT_NAME = hcm
-PYTHON_INTERPRETER = python
+PYTHON_INTERPRETER = python3
+PIP = pip3
 
 ifeq (,$(shell which conda))
 HAS_CONDA=False
@@ -22,17 +23,17 @@ endif
 # COMMANDS                                                                      #
 #################################################################################
 
-## Install Python Dependencies
-requirements: test_environment
-	pip install -r requirements.txt
+## Install dependencies
+reqs: test_env
+	$(PIP) install -r requirements.txt
 
 ## Delete all compiled Python files
 clean:
 	find . -name "*.pyc" -exec rm {} \;
 
-## Install Python Dependencies for Development
-dev_requirements: requirements
-	pip install -r dev_requirements.txt
+## Install development dependencies
+dev_reqs: requirements
+	$(PIP) install -r dev_requirements.txt
 
 ## Lint using flake8
 lint:
@@ -44,22 +45,19 @@ hooks:
 	chmod +x .git/hooks/pre-push
 	chmod +x .git/hooks/pre-commit
 
-## Set up python interpreter environment
-create_environment:
+## Set up virtual environment
+env:
 ifeq (True,$(HAS_CONDA))
-		@echo ">>> Detected conda, creating conda environment."
-		conda create --name $(PROJECT_NAME) python=3.6
-		@echo ">>> New conda env created. Activate with:\nsource activate $(PROJECT_NAME)"
+	@echo ">>> Detected conda, creating conda environment."
+	conda create --name $(PROJECT_NAME) python=3.6
+	@echo ">>> New conda env created. Activate with:\nsource activate $(PROJECT_NAME)"
 else
-	@pip install -q virtualenv virtualenvwrapper
-	@echo ">>> Installing virtualenvwrapper if not already intalled.\nMake sure the following lines are in shell startup file\n\
-	export WORKON_HOME=$$HOME/.virtualenvs\nexport PROJECT_HOME=$$HOME/Devel\nsource /usr/local/bin/virtualenvwrapper.sh\n"
-	@bash -c "source `which virtualenvwrapper.sh`;mkvirtualenv $(PROJECT_NAME) --python=python3.6"
-	@echo ">>> New virtualenv created. Activate with:\nworkon $(PROJECT_NAME)"
+	$(PYTHON_INTERPRETER) -m venv $(PROJECT_NAME)
+	@echo ">>> New venv created. Activate with:\nsource $(PROJECT_NAME)/bin/activate"
 endif
 
 ## Test python environment is setup correctly
-test_environment:
+test_env:
 	$(PYTHON_INTERPRETER) test_environment.py
 
 #################################################################################
