@@ -55,7 +55,10 @@ def tempo_to_frequency(tempo, note_duration='quarter'):
 
     # assign appropriate numerical factor to note type
     if note_duration not in DURATIONS:
-        raise UserWarning('{} not a valid note duration, defaulting to quarter notes.')
+        raise UserWarning(
+            '{} not a valid note duration, defaulting to quarter notes.'
+            .format_map(note_duration)
+        )
 
     note = DURATIONS.get(note_duration, 0)
 

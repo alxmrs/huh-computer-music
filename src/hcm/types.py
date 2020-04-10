@@ -5,9 +5,7 @@ import click
 
 
 def processor(f):
-    """Helper decorator to rewrite a function so that it returns another
-    function from it.
-    """
+    """Decorator to convert a function into a stream processor."""
     def new_func(*args, **kwargs):
         def processor(stream):
             return f(stream, *args, **kwargs)
@@ -25,6 +23,7 @@ def rx_generator(f):
 
 def generator(f):
     """Similar to the :func:`processor` but passes through old values
+
     unchanged and does not pass through the values as parameter.
     """
     @processor
