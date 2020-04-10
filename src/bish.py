@@ -23,7 +23,12 @@ def cli():
     """This script generates sounds via pipelined commands.
 
     Example:
-        bish period trace ts osc scale-map vco mul -v 0.05 trace speaker
+        Use with caution regarding volume! Make sure you don't blow out your speakers.
+
+        `bin/bish period trace time-series oscillate scale-map vco multiply speaker`
+
+        Abbreviated:
+        `bin/bish p tr ts osc sm vco mul sp`
 
     """
     pass
@@ -45,7 +50,8 @@ def rx_process_commands(processors):
     for proc in processors:
         stream = proc(stream)
 
-    input('Press any key to stop\n')
+    input('Press enter to stop\n')
+    print('Goodbye.')
 
 
 def first(it: typing.Iterable):
@@ -89,7 +95,7 @@ def ts_cmd(observable: rx.Observable, sample_rate: int) -> rx.Observable:
     """Transform an integer into a 1 second time-series with the desired sample rate."""
     global SAMPLE_RATE
     SAMPLE_RATE = sample_rate
-    end_range = INTERVAL_LENGTH / 1000
+    end_range = int(INTERVAL_LENGTH / 1000)
     return observable.map(lambda s: hcm.ts.time(s, s + end_range, sample_rate))
 
 
@@ -102,7 +108,7 @@ def trace_cmd(observable: rx.Observable) -> rx.Observable:
 
 
 @cli.command('speaker')
-@click.option('-c', '--channels', type=int, default=2, help='Number of output channels')
+@click.option('-c', '--channels', type=int, default=1, help='Number of output channels')
 @types.processor
 def speaker_cmd(observable: rx.Observable, channels: int) -> rx.Observable:
     """Pipes input audio stream to speaker"""
@@ -142,7 +148,7 @@ def add_cmd(observable: rx.Observable, constant) -> rx.Observable:
 
 
 @cli.command('multiply')
-@click.option('-c', '--constant', type=float, default=0)
+@click.option('-c', '--constant', type=float, default=1)
 @types.processor
 def mult_cmd(observable: rx.Observable, constant) -> rx.Observable:
     """Multiply the input signal by a constant"""

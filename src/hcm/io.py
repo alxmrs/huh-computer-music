@@ -49,7 +49,10 @@ class AudioOutput(rx.Observer):
                                 dtype=np.float32)
 
     def on_next(self, val):
-        self.stream.write(np.ascontiguousarray(val, dtype=np.float32))
+        try:
+            self.stream.write(np.ascontiguousarray(val, dtype=np.float32))
+        except:
+            pass
 
     def on_error(self, err):
         self._close_stream()
