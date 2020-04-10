@@ -25,7 +25,7 @@ endif
 
 ## Install dependencies
 reqs: test_env
-	$(PIP) install -r requirements.txt
+	$(PIP) install -r requirements.txt --ignore-installed six
 
 ## Delete all compiled py files
 clean:
@@ -33,7 +33,7 @@ clean:
 
 ## Install development dependencies
 dev_reqs: requirements
-	$(PIP) install -r dev_requirements.txt
+	$(PIP) install -r dev_requirements.txt --ignore-installed six
 
 ## Lint project
 lint:
