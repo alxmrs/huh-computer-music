@@ -21,18 +21,18 @@ To view all workflow commands, simply run `make`.
 
 ### CLI
 
-`bish` is an experimental script to pipeline commands for sound generation.
+`bin/bish` is an experimental script to pipeline commands for sound generation.
 
-`bish --help` will print the full list of commands. 
+`bin/bish --help` will print the full list of commands. 
 
 Each command comes with aliases: They can either be called by their partial name (`multiply` --> `mul`) or 
 by their initials (`time-series` --> `ts`).
 
-`bish <cmd> --help` will print the unabridged docs for the command.
+`bin/bish <cmd> --help` will print the unabridged docs for the command.
 
 #### Examples
 
-`bish period trace ts osc scale-map vco mul -v 0.05 trace speaker`
+`bin/bish period trace ts osc scale-map vco mul -v 0.05 trace speaker`
 
 TODO(#13)
 
