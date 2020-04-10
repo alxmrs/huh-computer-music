@@ -30,10 +30,11 @@ by their initials (`time-series` --> `ts`).
 
 `bish <cmd> --help` will print the unabridged docs for the command.
 
-#### Example usages
+#### Examples
 
 `bish period trace ts osc scale-map vco mul -v 0.05 trace speaker`
 
+TODO(alxrsngrtn)
 
 
 
