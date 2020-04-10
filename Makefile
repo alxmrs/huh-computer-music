@@ -24,7 +24,7 @@ endif
 #################################################################################
 
 ## Install dependencies
-reqs: test_env
+reqs: test-env
 	$(PIP) install -r requirements.txt --ignore-installed six
 
 ## Delete all compiled py files
@@ -32,7 +32,7 @@ clean:
 	find . -name "*.pyc" -exec rm {} \;
 
 ## Install development dependencies
-dev_reqs: requirements
+dev-reqs: requirements
 	$(PIP) install -r dev_requirements.txt --ignore-installed six
 
 ## Lint project
@@ -57,7 +57,7 @@ else
 endif
 
 ## Test python environment is setup correctly
-test_env:
+test-env:
 	$(PYTHON_INTERPRETER) test_environment.py
 
 #################################################################################

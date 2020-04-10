@@ -16,3 +16,28 @@ then install as follows:
  - or `pip3 install -r requirements.txt`
 
 To view all workflow commands, simply run `make`.
+
+## Usage
+
+### CLI
+
+`bish` is an experimental script to pipeline commands for sound generation.
+
+`bish --help` will print the full list of commands. 
+
+Each command comes with aliases: They can either be called by their partial name (`multiply` --> `mul`) or 
+by their initials (`time-series` --> `ts`).
+
+`bish <cmd> --help` will print the unabridged docs for the command.
+
+#### Example usages
+
+`bish period trace ts osc scale-map vco mul -v 0.05 trace speaker`
+
+
+
+
+
+
+### Library
+
