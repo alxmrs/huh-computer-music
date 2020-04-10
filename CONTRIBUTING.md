@@ -1,7 +1,7 @@
 
 # CONTRIBUTING
 
-TODO(alxrsngrtn)
+TODO(#11)
 
 ## Getting Started
 

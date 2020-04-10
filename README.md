@@ -34,11 +34,11 @@ by their initials (`time-series` --> `ts`).
 
 `bish period trace ts osc scale-map vco mul -v 0.05 trace speaker`
 
-TODO(alxrsngrtn)
-
-
-
-
+TODO(#13)
 
 ### Library
+
+The library is under revision. Usage can be demonstrated via [this demo notebook](demos/huh_computer_music.ipynb).
+
+TODO(#14)
 
