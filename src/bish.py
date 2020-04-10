@@ -17,6 +17,7 @@ INTERVAL_LENGTH = 1000  # ms
 WAVES = {'sine': osc.sine, 'triangle': osc.triangle, 'square': osc.square}
 
 
+# TODO(#13)
 @click.group(chain=True, cls=types.AliasedGroup)
 def cli():
     """This script generates sounds via pipelined commands.

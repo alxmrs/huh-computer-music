@@ -9,7 +9,8 @@
 
 PROJECT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 PROJECT_NAME = hcm
-PYTHON_INTERPRETER = python
+PYTHON_INTERPRETER = python3
+PIP = pip3
 
 ifeq (,$(shell which conda))
 HAS_CONDA=False
@@ -22,51 +23,48 @@ endif
 # COMMANDS                                                                      #
 #################################################################################
 
-## Install Python Dependencies
-requirements: test_environment
-	pip install -r requirements.txt
+## Install dependencies
+reqs: test-env
+	$(PIP) install -r requirements.txt --ignore-installed six
 
-## Delete all compiled Python files
+## Delete all compiled py files
 clean:
 	find . -name "*.pyc" -exec rm {} \;
 
-## Install Python Dependencies for Development
-dev_requirements: requirements
-	pip install -r dev_requirements.txt
+## Install development dependencies
+dev-reqs: requirements
+	$(PIP) install -r dev_requirements.txt --ignore-installed six
 
-## Lint using flake8
+## Lint project
 lint:
 	$(PYTHON_INTERPRETER) -m flake8 --exclude=lib/,bin/,docs/conf.py --ignore F401,H301,E203,E241 .
 
-# Copy client-side hooks over
+## Install git pre-push and pre-submit checks
 hooks:
 	cp .github/hooks/* .git/hooks/.
 	chmod +x .git/hooks/pre-push
 	chmod +x .git/hooks/pre-commit
 
-## Set up python interpreter environment
-create_environment:
+## Set up virtual environment
+env:
 ifeq (True,$(HAS_CONDA))
-		@echo ">>> Detected conda, creating conda environment."
-		conda create --name $(PROJECT_NAME) python=3.6
-		@echo ">>> New conda env created. Activate with:\nsource activate $(PROJECT_NAME)"
+	@echo ">>> Detected conda, creating conda environment."
+	conda create --name $(PROJECT_NAME) python=3.6
+	@echo ">>> New conda env created. Activate with:\nsource activate $(PROJECT_NAME)"
 else
-	@pip install -q virtualenv virtualenvwrapper
-	@echo ">>> Installing virtualenvwrapper if not already intalled.\nMake sure the following lines are in shell startup file\n\
-	export WORKON_HOME=$$HOME/.virtualenvs\nexport PROJECT_HOME=$$HOME/Devel\nsource /usr/local/bin/virtualenvwrapper.sh\n"
-	@bash -c "source `which virtualenvwrapper.sh`;mkvirtualenv $(PROJECT_NAME) --python=python3.6"
-	@echo ">>> New virtualenv created. Activate with:\nworkon $(PROJECT_NAME)"
+	$(PYTHON_INTERPRETER) -m venv $(PROJECT_NAME)
+	@echo ">>> New venv created. Activate with:\nsource $(PROJECT_NAME)/bin/activate"
 endif
 
 ## Test python environment is setup correctly
-test_environment:
+test-env:
 	$(PYTHON_INTERPRETER) test_environment.py
 
 #################################################################################
 # PROJECT RULES                                                                 #
 #################################################################################
 
-
+# TODO(#12)
 
 #################################################################################
 # Self Documenting Commands                                                     #
