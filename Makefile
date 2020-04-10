@@ -27,7 +27,7 @@ endif
 reqs: test_env
 	$(PIP) install -r requirements.txt
 
-## Delete all compiled Python files
+## Delete all compiled py files
 clean:
 	find . -name "*.pyc" -exec rm {} \;
 
@@ -35,11 +35,11 @@ clean:
 dev_reqs: requirements
 	$(PIP) install -r dev_requirements.txt
 
-## Lint using flake8
+## Lint project
 lint:
 	$(PYTHON_INTERPRETER) -m flake8 --exclude=lib/,bin/,docs/conf.py --ignore F401,H301,E203,E241 .
 
-# Copy client-side hooks over
+## Install git pre-push and pre-submit checks
 hooks:
 	cp .github/hooks/* .git/hooks/.
 	chmod +x .git/hooks/pre-push
@@ -64,7 +64,7 @@ test_env:
 # PROJECT RULES                                                                 #
 #################################################################################
 
-
+# TODO(alxrsngrtn)
 
 #################################################################################
 # Self Documenting Commands                                                     #
