@@ -7,32 +7,29 @@ For an idea of what this means, check out the [demo notebook](/demos/Pycon2018-t
 
 ## Installation
 
-In a little while, this module will be pip-installable. For the time being, please clone or download this repository and
-then install as follows: 
+1. Clone this repository
+2. `pip install -e .`
 
-1. Create a virtual python environment using your favorite method. Or, simply call `make env`. 
-2. Install the project requirements:
- - `make reqs`
- - or `pip3 install -r requirements.txt`
+### Developer setup
 
-To view all workflow commands, simply run `make`.
+`pip install -e .[dev]`
 
 ## Usage
 
 ### CLI
 
-`bin/bish` is an experimental script to pipeline commands for sound generation.
+`bish` is an experimental script to pipeline commands for sound generation.
 
-`bin/bish --help` will print the full list of commands. 
+`bish --help` will print the full list of commands. 
 
 Each command comes with aliases. They can either be called by their partial name (`multiply` --> `mul`) or 
 by their initials (`time-series` --> `ts`).
 
-`bin/bish <cmd> --help` will print the unabridged docs for the command.
+`bish <cmd> --help` will print the unabridged docs for the command.
 
 #### Examples
 
-`bin/bish period trace ts osc scale-map vco mul -v 0.05 trace speaker`
+`bish period trace ts osc scale-map vco mul -v 0.05 trace speaker`
 
 TODO(#13)
 
