@@ -7,18 +7,13 @@ For an idea of what this means, check out the [demo notebook](/demos/huh_compute
 
 ## Installation
 
-1. Clone this repository
-2. `pip install -e .`
-
-### Developer setup
-
-`pip install -e .[dev]`
+`pip install git+git://github.com/alxrsngrtn/huh-computer-music.git#egg=huh-computer-music`
 
 ## Usage
 
 ### CLI
 
-`bish` is an experimental script to pipeline commands for sound generation.
+`bish` is an experimental script to pipeline commands for sound generation. This script is included in installation.
 
 `bish --help` will print the full list of commands. 
 
