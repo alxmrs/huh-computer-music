@@ -36,14 +36,14 @@ def dlorenz(t, x, y, z):
     # params
     s = 10
     r = 28
-    b = 8/3.
+    b = 8 / 3.
     dx = np.zeros(len(x))
     dy = np.zeros(len(y))
     dz = np.zeros(len(z))
-    for n in range(len(t)-1):
-        dx[n+1] = s * (y[n] - x[n])
-        dy[n+1] = r * x[n] - y[n] - x[n] * z[n]
-        dz[n+1] = x[n] * y[n] - b * z[n]
+    for n in range(len(t) - 1):
+        dx[n + 1] = s * (y[n] - x[n])
+        dy[n + 1] = r * x[n] - y[n] - x[n] * z[n]
+        dz[n + 1] = x[n] * y[n] - b * z[n]
     # normalize
     dx, dy, dz = map(normalize, (dx, dy, dz))
     return dx, dy, dz

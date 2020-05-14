@@ -37,7 +37,7 @@ dev-reqs: requirements
 
 ## Lint project
 lint:
-	$(PYTHON_INTERPRETER) -m flake8 --exclude=lib/,bin/,docs/conf.py --ignore F401,H301,E203,E241 .
+	$(PYTHON_INTERPRETER) -m flake8 --exclude=lib/,bin/,docs/conf.py --ignore F401,H301,E203,E241 src
 
 ## Install git pre-push and pre-submit checks
 hooks:

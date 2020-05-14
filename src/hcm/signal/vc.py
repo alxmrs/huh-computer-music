@@ -30,7 +30,8 @@ def ADSR(A, D, S, R, duration, sample_rate):
     attack = (1.0 - 0.0) / A * hcm.ts.time(0, A, sample_rate)
     decay = 1 - S / D * hcm.ts.time(0, D, sample_rate)
     release = S - (S - 0.0) / R * hcm.ts.time(0, R, sample_rate)
-    sustain = S * np.ones(int(duration * sample_rate) - len(attack) - len(decay) - len(release))
+    sustain = S * np.ones(
+        int(duration * sample_rate) - len(attack) - len(decay) - len(release)
+    )
 
     return np.concatenate([attack, decay, sustain, release])
-

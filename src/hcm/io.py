@@ -38,7 +38,10 @@ def sample_reader(filename):
 
 class AudioOutput(rx.Observer):
 
-    def __init__(self, channels=1, sample_rate: int = SAMPLE_RATE, period_length_sec: int = 1):
+    def __init__(self,
+                 channels=1,
+                 sample_rate: int = SAMPLE_RATE,
+                 period_length_sec: int = 1):
         super().__init__()
 
         block_size = period_length_sec * sample_rate
@@ -49,7 +52,10 @@ class AudioOutput(rx.Observer):
                                 dtype=np.float32)
 
     def on_next(self, val):
-        self.stream.write(np.ascontiguousarray(val, dtype=np.float32))
+        try:
+            self.stream.write(np.ascontiguousarray(val, dtype=np.float32))
+        except sd.PortAudioError:
+            pass
 
     def on_error(self, err):
         self._close_stream()
@@ -90,4 +96,3 @@ class WavFileOutput(rx.Observer):
 
     def on_error(self, error):
         print('An error occured, couldn\'t output wavefile', error)
-

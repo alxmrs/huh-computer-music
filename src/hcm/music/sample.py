@@ -27,8 +27,8 @@ def sampler(sample, trig):
     indices = np.nonzero(trig == 1)[0]
 
     for i in range(len(indices)):
-        end = min(ind+len(sample), len(trig))
         ind = indices[i]
+        end = min(ind + len(sample), len(trig))
         diff = end - ind
         out[ind:end] = sample[:diff]
 
