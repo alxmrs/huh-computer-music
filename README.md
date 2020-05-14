@@ -25,7 +25,7 @@ To view all workflow commands, simply run `make`.
 
 `bin/bish --help` will print the full list of commands. 
 
-Each command comes with aliases: They can either be called by their partial name (`multiply` --> `mul`) or 
+Each command comes with aliases. They can either be called by their partial name (`multiply` --> `mul`) or 
 by their initials (`time-series` --> `ts`).
 
 `bin/bish <cmd> --help` will print the unabridged docs for the command.

@@ -22,16 +22,15 @@ WAVES = {'sine': osc.sine, 'triangle': osc.triangle, 'square': osc.square}
 def cli():
     """This script generates sounds via pipelined commands.
 
-    Example:
-        Use with caution regarding volume! Make sure you don't blow
-        out your speakers.
+    The following examples demonstrate verbose and abbreviated
+    usages of the CLI.
 
-        `bin/bish period trace time-series oscillate scale-map \
-            vco multiply speaker`
+    Run these examples with caution regarding volume! Make sure you don't
+    blow out your speakers.
 
-        Abbreviated:
-        `bin/bish p tr ts osc sm vco mul sp`
+    $ bin/bish period time-series oscillate scale-map vco multiply speaker
 
+    $ bin/bish p ts osc sm vco mul sp
     """
     pass
 
@@ -44,7 +43,6 @@ def rx_process_commands(processors):
 
     Args:
         processors: Commands produced from the Click CLI.
-
     """
 
     stream = ()
@@ -223,7 +221,6 @@ def vco_cmd(observable: rx.Observable, wave) -> rx.Observable:
 
     Returns:
         A single time series representing the new audio.
-
     """
     chosen_wave = WAVES[wave]
     return observable.map(lambda o: vc.VCO(*o, chosen_wave))
