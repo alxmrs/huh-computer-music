@@ -3,7 +3,7 @@
 This is a tiny computer music library writing in Python, powered by NumPy. 
 Here, we use principles behind analog synthesizers to make computer music. 
 
-For an idea of what this means, check out the [demo notebook](/demos/Pycon2018-talk.ipynb).
+For an idea of what this means, check out the [demo notebook](/demos/huh_computer_music.ipynb).
 
 ## Installation
 
