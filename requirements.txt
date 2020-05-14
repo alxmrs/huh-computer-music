@@ -2,5 +2,4 @@ numpy
 scipy
 rx==1.6.1
 sounddevice
-matplotlib
 click
