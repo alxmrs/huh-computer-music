@@ -1,3 +1,6 @@
+import numpy as np
+from scipy import interpolate
+
 def time(t0, T, sample_rate):
     """Just np.linspace()
 
@@ -7,13 +10,6 @@ def time(t0, T, sample_rate):
     """
     t = np.linspace(t0, t0 + T, num=T * sample_rate, dtype=np.float32)
     return t
-
-
-def normalize(signal):
-    """Restrict the range of a signal to the closed interval [-1.0, 1.0]. """
-    normalized_signal = signal / max(signal.max(), signal.min(), key=abs)
-    return normalized_signal
-
 
 # OSCILLATORS
 
@@ -168,37 +164,118 @@ def highpass(x, fc, k, sample_rate=R):
     return y4
 
 
-import hcm
-
-# allow voltage control of osc frequency
-# here freq is now an array w/ same length as t
-
-
-
 def VCA(signal, modulation):
     """Amplitude modulation of two signals by pairwise multiplication. """
     return np.multiply(signal, modulation)
 
 
-def ADSR(A, D, S, R, duration, sample_rate):
-    """TODO: Find good place for this... """
-    attack = (1.0 - 0.0) / A * hcm.ts.time(0, A, sample_rate)
-    decay = 1 - S / D * hcm.ts.time(0, D, sample_rate)
-    release = S - (S - 0.0) / R * hcm.ts.time(0, R, sample_rate)
-    sustain = S * np.ones(
-        int(duration * sample_rate) - len(attack) - len(decay) - len(release)
-    )
+# GATE
+def gate(x, threshold=.5):
+    y = np.piecewise(x, [x<threshold, x>=threshold], [0, 1])
+    return y
 
-    return np.concatenate([attack, decay, sustain, release])
+# needs to be able to change envelope parameters continuously!
+def envelope(gate, A, D, S, R):
+    # create masks
+    attack = np.divide(time(A), A)
+    decay = np.subtract(1., np.divide(np.multiply(time(D), S), D))
+    release = np.subtract(S, np.divide(np.multiply(time(R), S), R))
+    AD = np.concatenate((attack, decay))
+    # split up gate signal
+    Y = np.array_split(gate, np.where(np.diff(gate)!=0)[0]+1)
+    # first chunk special case
+    if np.all(Y[0]==1):
+        Y[0][0:len(AD)] = AD
+        Y[0][len(AD):] = S
+    else:
+        Y[0] = 0
+    # the rest
+    for y in Y[1:]:
+        if np.all(y==1.):
+            y[0:len(AD)] = AD
+            y[len(AD)+1:] = S
+        else:
+            y[0:len(release)] = release
+            y[len(release)+1:] = 0
+    return np.concatenate(Y)
 
 
 
-# hold = downsampled rate, or the number of times per second you want to sample
-def sample_and_hold(signal, sample_rate, hold):
-    """Samples"""
-    inc = int(sample_rate / hold)
-    samples = signal[0::inc]
-    new_signal = np.zeros([len(samples), inc], dtype=np.float32)
-    for i in range(0, len(samples)):
-        new_signal[i, :] = samples[i]
-    return np.concatenate(new_signal)
+def normalize(signal):
+    """
+    Linearly scales signal to range [-1.0, 1.0].
+
+    Parameters
+    ----------
+    signal : 1-D array
+
+
+    Returns
+    ----------
+    out : 1-D array
+
+    """
+    out = signal/max(signal.max(), signal.min(), key=abs)
+    return out
+
+
+
+def comparator(x, threshold):
+    """
+    description.
+
+    Parameters
+    ----------
+    x : 1-D array
+
+    threshold : scalar
+
+    Returns
+    ----------
+    out : 1-D array
+
+
+    """
+    out = np.zeros(len(x))
+    out[np.nonzero(x>threshold)] = 1.0
+    return out
+
+
+    #cv
+
+    ## note, might want uneven spacing of hold intervals (for interesting melodies or whatever)
+    # crux is in tsh: figure out how to vary spacing of time entries in array
+    # add optional argument to use this functionality if desired
+
+
+
+def sample_and_hold(t, x, hold):
+    """
+    Sample and hold, for manipulating control signals or bitcrushing audio.
+    First performs a zero order interpolation on x, creates a new array with values of x with sample rate 'hold'.
+    Then performs another zero order interpolation on that array to fill in the values in between hold intervals.
+
+    Parameters
+    ----------
+    t : 1-D array
+        Time.
+    x : 1-D array
+        Time series signal.
+    hold : scalar
+        Sample rate.
+
+    Returns
+    ----------
+    out : 1-D array
+    """
+    # first downsample x using zero order interpolation
+    sh = interpolate.interp1d(t, x, kind='zero', axis=0)
+    # make new time for just interpolated values
+    T = t[-1]
+    tsh = time(T, sample_rate=hold)
+    # populate new time array with sampled values
+    xsh = sh(tsh)
+    # interpolate *that* and fill in the gaps
+    sh = interpolate.interp1d(tsh, xsh, kind='zero', axis=0, fill_value='extrapolate')
+    out = sh(t)
+    return out
