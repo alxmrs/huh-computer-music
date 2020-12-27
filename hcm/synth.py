@@ -166,3 +166,39 @@ def highpass(x, fc, k, sample_rate=R):
         y3[n+1] = alpha[n] * (y3[n] + y2[n+1] - y2[n])
         y4[n+1] = alpha[n] * (y4[n] + y3[n+1] - y3[n])
     return y4
+
+
+import hcm
+
+# allow voltage control of osc frequency
+# here freq is now an array w/ same length as t
+
+
+
+def VCA(signal, modulation):
+    """Amplitude modulation of two signals by pairwise multiplication. """
+    return np.multiply(signal, modulation)
+
+
+def ADSR(A, D, S, R, duration, sample_rate):
+    """TODO: Find good place for this... """
+    attack = (1.0 - 0.0) / A * hcm.ts.time(0, A, sample_rate)
+    decay = 1 - S / D * hcm.ts.time(0, D, sample_rate)
+    release = S - (S - 0.0) / R * hcm.ts.time(0, R, sample_rate)
+    sustain = S * np.ones(
+        int(duration * sample_rate) - len(attack) - len(decay) - len(release)
+    )
+
+    return np.concatenate([attack, decay, sustain, release])
+
+
+
+# hold = downsampled rate, or the number of times per second you want to sample
+def sample_and_hold(signal, sample_rate, hold):
+    """Samples"""
+    inc = int(sample_rate / hold)
+    samples = signal[0::inc]
+    new_signal = np.zeros([len(samples), inc], dtype=np.float32)
+    for i in range(0, len(samples)):
+        new_signal[i, :] = samples[i]
+    return np.concatenate(new_signal)
