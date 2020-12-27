@@ -323,22 +323,22 @@ def sample_and_hold(t, x, hold):
 # add optional argument to use this functionality if desired
 
 
- def quantize_frequency(x, scale):
-     """
-     Takes a control signal x and maps it to discrete audio frequencies
+def quantize_frequency(x, scale):
+    """
+    Takes a control signal x and maps it to discrete audio frequencies
 
-     Parameters
-     ----------
-     x : 1-D array
-         control signal for oscillator
-     scale : 1-D array
-         array of audio frequencies
-     Returns
-     ----------
-     out : 1-D array
-         use as frequency argument for oscillators
-     """
-     bins = np.linspace(-1, 1, num=len(scale))
-     inds = np.digitize(x, bins)
-     out = np.array([scale[i - 1] for i in inds], dtype=np.float32)
-     return out
+    Parameters
+    ----------
+    x : 1-D array
+        control signal for oscillator
+    scale : 1-D array
+        array of audio frequencies
+    Returns
+    ----------
+    out : 1-D array
+        use as frequency argument for oscillators
+    """
+    bins = np.linspace(-1, 1, num=len(scale))
+    inds = np.digitize(x, bins)
+    out = np.array([scale[i - 1] for i in inds], dtype=np.float32)
+    return out
