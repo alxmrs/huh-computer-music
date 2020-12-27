@@ -311,7 +311,7 @@ def sample_and_hold(t, x, hold):
     out : 1-D array
     """
     sh = interpolate.interp1d(t, x, kind='zero', axis=0)
-    T = t[-1]
+    T = int(t[-1])
     tsh = time(T, sample_rate=hold)
     xsh = sh(tsh)
     sh = interpolate.interp1d(tsh, xsh, kind='zero', axis=0, fill_value='extrapolate')
