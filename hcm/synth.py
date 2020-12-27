@@ -2,7 +2,7 @@ import numpy as np
 from scipy import interpolate
 
 
-def time(t0, T, sample_rate):
+def time(T, t0=0, sample_rate=44100):
     """Just np.linspace()
 
     t = [t[0], t[1], t[2], ..., t[n], ..., t[N]].
