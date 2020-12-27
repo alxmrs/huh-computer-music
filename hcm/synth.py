@@ -127,7 +127,7 @@ def brownian_noise(t):
 
 # what are acceptable values for fc, k?
 # need a wrapper to take values in range [0,1]?
-def lowpass(x, fc, k, sample_rate=R):
+def lowpass(x, fc, k, sample_rate=44100):
     """
     4th order low pass filter.
 
@@ -166,7 +166,7 @@ def lowpass(x, fc, k, sample_rate=R):
 
 # what are acceptable values for fc, k?
 # need a wrapper to take values in range [0,1]?
-def highpass(x, fc, k, sample_rate=R):
+def highpass(x, fc, k, sample_rate=44100):
     """
     4th order high pass filter.
 
