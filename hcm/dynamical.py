@@ -1,6 +1,6 @@
 import numpy as np
 
-from synth import normalize
+from hcm.synth import normalize
 
 
 def lorenz(t, X0=(2, 3, 4), time_scale=1):
