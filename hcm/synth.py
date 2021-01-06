@@ -1,4 +1,5 @@
 import numpy as np
+from scipy import signal
 from scipy import interpolate
 
 
@@ -9,7 +10,7 @@ def time(T, t0=0, sample_rate=44100):
     t[N] = t0 + N*dt = T
     dt = 1/sample_rate
     """
-    t = np.linspace(t0, t0 + T, num=T * sample_rate, dtype=np.float32)
+    t = np.linspace(t0, t0 + T, num=int(T * sample_rate), dtype=np.float32)
     return t
 
 
@@ -93,6 +94,18 @@ def sawtooth_wave(t, f, d=0, phi=0, A=1):
     """
     x = np.multiply(A, signal.sawtooth(np.add(np.multiply(2*np.pi*f, t), phi), d))
     return x
+
+def VCO(t, f, osc):
+    """Allows control of frequency in time.
+    f is now a 1-D array with same length as t, so that the frequency can be
+    specified at each point in time.
+    Argument 'osc' can be sine, square, or triangle.
+    """
+    N = len(t)
+    output = np.zeros(N, dtype=np.float32)
+    for n in range(0, N):
+        output[n] = osc(t[n], f[n])
+    return output
 
 
 # NOISE
@@ -311,7 +324,7 @@ def sample_and_hold(t, x, hold):
     out : 1-D array
     """
     sh = interpolate.interp1d(t, x, kind='zero', axis=0)
-    T = int(t[-1])
+    T = t[-1]
     tsh = time(T, sample_rate=hold)
     xsh = sh(tsh)
     sh = interpolate.interp1d(tsh, xsh, kind='zero', axis=0, fill_value='extrapolate')
@@ -323,7 +336,7 @@ def sample_and_hold(t, x, hold):
 # add optional argument to use this functionality if desired
 
 
-def quantize_frequency(x, scale):
+def frequency_map(x, scale):
     """
     Takes a control signal x and maps it to discrete audio frequencies
 
