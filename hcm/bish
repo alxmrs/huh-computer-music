@@ -11,7 +11,7 @@ from hcm import types
 SAMPLE_RATE = 8000  # hz
 INTERVAL_LENGTH = 1000  # ms
 
-WAVES = {'sine': hcm.osc.sine, 'triangle': hcm.osc.triangle, 'square': hcm.osc.square}
+WAVES = {'sine': hcm.synth.sine_wave, 'triangle': hcm.synth.sawtooth_wave, 'square': hcm.synth.square_wave}
 
 # TODO(#13)
 @click.group(chain=True, cls=types.AliasedGroup)
@@ -97,7 +97,7 @@ def ts_cmd(observable: rx.Observable, sample_rate: int) -> rx.Observable:
     global SAMPLE_RATE
     SAMPLE_RATE = sample_rate
     end_range = int(INTERVAL_LENGTH / 1000)
-    return observable.map(lambda s: ts.time(s, s + end_range, sample_rate))
+    return observable.map(lambda s: synth.time(s, s + end_range, sample_rate))
 
 
 @cli.command('trace')
@@ -117,7 +117,7 @@ def trace_cmd(observable: rx.Observable) -> rx.Observable:
 def speaker_cmd(observable: rx.Observable, channels: int) -> rx.Observable:
     """Pipes input audio stream to speaker"""
 
-    speaker_observer = io.AudioOutput(channels=channels)
+    speaker_observer = hcm.io.AudioOutput(channels=channels)
 
     observable \
         .map(parse_endofunctor) \
@@ -176,7 +176,7 @@ def quantize_cmd(observable: rx.Observable,
     """Quantize input frequency."""
     hold = hcm.music.tempo_to_frequency(bpm, note_duration)
     return observable.map(
-        lambda o: (o[0], hcm.ts.sample_and_hold(o[1], SAMPLE_RATE, hold))
+        lambda o: (o[0], hcm.synth.sample_and_hold(o[1], SAMPLE_RATE, hold))
     )
 
 
@@ -195,7 +195,7 @@ def scale_map_cmd(observable: rx.Observable,
     chosen_key = hcm.music.keys[key]
     scale = hcm.music.scale_constructor(freq_start, chosen_key, num_octaves)
     return observable.map(
-        lambda o: (o[0], hcm.music.frequency_map(o[1], scale))
+        lambda o: (o[0], hcm.synth.frequency_map(o[1], scale))
     )
 
 
@@ -219,7 +219,7 @@ def vco_cmd(observable: rx.Observable, wave) -> rx.Observable:
         A single time series representing the new audio.
     """
     chosen_wave = WAVES[wave]
-    return observable.map(lambda o: vc.VCO(*o, chosen_wave))
+    return observable.map(lambda o: synth.VCO(*o, chosen_wave))
 
 
 if __name__ == '__main__':
