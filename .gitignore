@@ -1,6 +1,16 @@
+# python generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
 .idea/
-*.pyc
 *.wav
 *.aiff
 .DS_Store
 demos/.ipynb_checkpoints
+.venv/
+build/
+

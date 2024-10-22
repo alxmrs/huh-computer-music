@@ -1,0 +1,38 @@
+[project]
+name = "huh-computer-music"
+version = "0.1.0"
+description = "A tiny computer music library powered by NumPy"
+authors = [
+    { name = "Jason Doar", email = "jbdoar@gmail.com" },
+    { name = "Alex Merose", email = "al@merose.com" },
+]
+license = "MIT"
+dependencies = [
+    "click<8.1.0",
+    "numpy",
+    "rx==1.6.1",
+    "scipy",
+    "sounddevice",
+]
+readme = "README.md"
+requires-python = ">= 3.10"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project.scripts]
+bish = "hcm:cli"
+
+[tool.rye]
+managed = true
+dev-dependencies = [
+    "jupyter>=1.1.1",
+    "matplotlib>=3.9.2",
+]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["hcm"]
