@@ -1,5 +1,4 @@
 from functools import update_wrapper
-import typing
 
 import click
 

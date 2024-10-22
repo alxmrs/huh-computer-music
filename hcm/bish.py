@@ -6,12 +6,13 @@ import click
 import rx
 
 import hcm
-from hcm import types, synth
+from hcm import types
 
 SAMPLE_RATE = 8000  # hz
 INTERVAL_LENGTH = 1000  # ms
 
-WAVES = {'sine': hcm.synth.sine_wave, 'triangle': hcm.synth.sawtooth_wave, 'square': hcm.synth.square_wave}
+WAVES = {'sine': hcm.sine_wave, 'triangle': hcm.sawtooth_wave, 'square': hcm.square_wave}
+
 
 # TODO(#13)
 @click.group(chain=True, cls=types.AliasedGroup)
@@ -97,7 +98,7 @@ def ts_cmd(observable: rx.Observable, sample_rate: int) -> rx.Observable:
     global SAMPLE_RATE
     SAMPLE_RATE = sample_rate
     end_range = int(INTERVAL_LENGTH / 1000)
-    return observable.map(lambda s: synth.time(s, s + end_range, sample_rate))
+    return observable.map(lambda s: hcm.time(s, s + end_range, sample_rate))
 
 
 @cli.command('trace')
@@ -167,24 +168,24 @@ def mult_cmd(observable: rx.Observable, constant) -> rx.Observable:
 @cli.command('quantize-frequency')
 @click.option('-b', '--bpm', type=int, default=150)
 @click.option('-d', '--note-duration',
-              type=click.Choice(list(hcm.music.DURATIONS.keys())),
-              default=first(hcm.music.DURATIONS.keys()))
+              type=click.Choice(list(hcm.DURATIONS.keys())),
+              default=first(hcm.DURATIONS.keys()))
 @types.processor
 def quantize_cmd(observable: rx.Observable,
                  bpm: int = 150,
                  note_duration: str = 'quarter') -> rx.Observable:
     """Quantize input frequency."""
-    hold = hcm.music.tempo_to_frequency(bpm, note_duration)
+    hold = hcm.tempo_to_frequency(bpm, note_duration)
     return observable.map(
-        lambda o: (o[0], hcm.synth.sample_and_hold(o[1], SAMPLE_RATE, hold))
+        lambda o: (o[0], hcm.sample_and_hold(o[1], SAMPLE_RATE, hold))
     )
 
 
 @cli.command('scale-map')
 @click.option('-f', '--freq-start', type=float, default=261.63)
 @click.option('-k', '--key',
-              type=click.Choice(list(hcm.music.keys.keys())),
-              default=first(hcm.music.keys.keys()))
+              type=click.Choice(list(hcm.KEYS.keys())),
+              default=first(hcm.KEYS.keys()))
 @click.option('-n', '--num-octaves', type=int, default=2)
 @types.processor
 def scale_map_cmd(observable: rx.Observable,
@@ -192,10 +193,10 @@ def scale_map_cmd(observable: rx.Observable,
                   key: str,
                   num_octaves: int = 2) -> rx.Observable:
     """Map input control signal into a musical scale."""
-    chosen_key = hcm.music.keys[key]
-    scale = hcm.music.scale_constructor(freq_start, chosen_key, num_octaves)
+    chosen_key = hcm.KEYS[key]
+    scale = hcm.scale_constructor(freq_start, chosen_key, num_octaves)
     return observable.map(
-        lambda o: (o[0], hcm.synth.frequency_map(o[1], scale))
+        lambda o: (o[0], hcm.frequency_map(o[1], scale))
     )
 
 
@@ -219,7 +220,7 @@ def vco_cmd(observable: rx.Observable, wave) -> rx.Observable:
         A single time series representing the new audio.
     """
     chosen_wave = WAVES[wave]
-    return observable.map(lambda o: synth.VCO(*o, chosen_wave))
+    return observable.map(lambda o: hcm.VCO(*o, chosen_wave))
 
 
 if __name__ == '__main__':
