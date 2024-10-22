@@ -6,7 +6,7 @@ import click
 import rx
 
 import hcm
-from hcm import types
+from hcm import types, synth
 
 SAMPLE_RATE = 8000  # hz
 INTERVAL_LENGTH = 1000  # ms

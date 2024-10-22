@@ -24,7 +24,7 @@ by their initials (`time-series` --> `ts`).
 
 #### Examples
 
-`bish period trace ts osc scale-map vco mul -v 0.05 trace speaker`
+`bish period trace ts osc scale-map vco mul -c 0.05 trace speaker`
 
 TODO(#13)
 

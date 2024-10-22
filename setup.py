@@ -17,5 +17,5 @@ setup(
         'dev': [x.strip() for x in open('dev_requirements.txt', 'r').readlines()]
     },
     packages=find_packages(),
-    scripts=['bin/bish']
+    scripts=['hcm/bish']
 )
