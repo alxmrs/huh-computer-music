@@ -1,4 +1,0 @@
-Sphinx
-mypy
-hacking
-matplotlib
