@@ -1,5 +1,0 @@
-numpy
-scipy
-rx==1.6.1
-sounddevice
-click<8.1.0

@@ -29,7 +29,13 @@ managed = true
 dev-dependencies = [
     "jupyter>=1.1.1",
     "matplotlib>=3.9.2",
+    "sphinx>=8.1.3",
+    "mypy>=1.12.1",
+    "hacking>=7.0.0",
 ]
+
+[tool.rye.scripts]
+lint = "flake8 --exclude=lib/,bin/,docs/conf.py --ignore F401,H301,E203,E241 hcm"
 
 [tool.hatch.metadata]
 allow-direct-references = true
